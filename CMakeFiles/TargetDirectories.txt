@@ -1,3 +1,0 @@
-/home/gee/workspace/pdi/CMakeFiles/edit_cache.dir
-/home/gee/workspace/pdi/CMakeFiles/rebuild_cache.dir
-/home/gee/workspace/pdi/CMakeFiles/DisplayImage.dir
