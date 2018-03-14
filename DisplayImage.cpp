@@ -3,51 +3,95 @@
 #include <vector>
 using namespace cv;
 
-void converterParaCinza(Mat& image) {
-    for(int x = 0; x < image.size().width; x++) {
-        for(int y = 0; y < image.size().height; y++) {
-            int blue  = image.at<Vec3b>(y, x)[0];
-            int green = image.at<Vec3b>(y, x)[1];
-            int red   = image.at<Vec3b>(y, x)[2];
-            Vec<unsigned char, 3>& pixel = image.at<Vec3b>(Point(x, y));
-            pixel[0] = pixel[1] = pixel[2] = blue * 0.114 + green * 0.587 + red * 0.229; // blue
+Mat converterParaCinza(Mat image) {
+    Mat newImage(image.size().height, image.size().width, CV_8UC3, Scalar(0,0,0));
+    for(int y = 0; y < newImage.size().height; y++) {
+        for(int x = 0; x < newImage.size().width; x++) {
+            Vec<unsigned char, 3>& oldImagePixel = image.at<Vec3b>(Point(x, y));  
+            Vec<unsigned char, 3>& pixel = newImage.at<Vec3b>(Point(x, y));
+
+            pixel[0] = pixel[1] = pixel[2] = oldImagePixel[0] * 0.114 + oldImagePixel[1] * 0.587 + oldImagePixel[2] * 0.229; // blue
         } 
     }
+
+    return newImage;
 }
 
-void converterParaCorInvertida(Mat& image) {
-    for(int x = 0; x < image.size().width; x++) {
-        for(int y = 0; y < image.size().height; y++) {
-            Vec<unsigned char, 3>& pixel = image.at<Vec3b>(Point(x, y));
-            pixel[0] = 255 - image.at<Vec3b>(y, x)[0]; // blue
-            pixel[1] = 255 - image.at<Vec3b>(y, x)[1]; // green
-            pixel[2] = 255 - image.at<Vec3b>(y, x)[2]; // red
+Mat converterParaCorInvertida(Mat image) {
+    Mat newImage(image.size().height, image.size().width, CV_8UC3, Scalar(0,0,0));
+    for(int y = 0; y < newImage.size().height; y++) {
+        for(int x = 0; x < newImage.size().width; x++) {
+            Vec<unsigned char, 3>& oldImagePixel = image.at<Vec3b>(Point(x, y));       
+            Vec<unsigned char, 3>& newImagePixel = newImage.at<Vec3b>(Point(x, y));
+
+            newImagePixel[0] = 255 - oldImagePixel[0]; // blue
+            newImagePixel[1] = 255 - oldImagePixel[1]; // green
+            newImagePixel[2] = 255 - oldImagePixel[2]; // red
         } 
     }
+
+    return newImage;
 }
 
-void converterParaLimiar(Mat& image, int limiar){
-    for(int x = 0; x < image.size().width; x++) {
-        for(int y = 0; y < image.size().height; y++) {
-            if(image.at<Vec3b>(Point(x, y))[0] > limiar) {
-                image.at<Vec3b>(Point(x, y))[0] = 1;
+Mat converterParaLimiar(Mat image, int limiar) {
+    Mat newImage;
+    image.copyTo(newImage);
+    for(int y = 0; y < newImage.size().height; y++) {
+        for(int x = 0; x < newImage.size().width; x++) {
+            Vec<unsigned char, 3>& pixel = newImage.at<Vec3b>(Point(x, y));
+            if(pixel[0] > limiar) {
+                pixel[0] = 0;
             } else {
-                image.at<Vec3b>(Point(x, y))[0] = 0;
+                pixel[0] = 255;
             }
 
-            if(image.at<Vec3b>(Point(x, y))[1] > limiar) {
-                image.at<Vec3b>(Point(x, y))[1] = 1;
+            if(pixel[1] > limiar) {
+                pixel[1] = 0;
             } else {
-                image.at<Vec3b>(Point(x, y))[1] = 0;
+                pixel[1] = 255;
             }
 
-            if(image.at<Vec3b>(Point(x, y))[2] > limiar) {
-                image.at<Vec3b>(Point(x, y))[2] = 1;
+            if(pixel[2] > limiar) {
+                pixel[2] = 0;
             } else {
-                image.at<Vec3b>(Point(x, y))[2] = 0;
+                pixel[2] = 255;
             }
         } 
     }
+
+    return newImage;
+}
+
+Mat isolarCanalDeCor(std::string cor, Mat image) {
+    Mat newImage(image.size().height, image.size().width, CV_8UC3, Scalar(0,0,0));
+    for(int y = 0; y < image.size().height; y++) {
+        for(int x = 0; x < image.size().width; x++) {
+            Vec<unsigned char, 3>& oldImagePixel = image.at<Vec3b>(Point(x, y));       
+            Vec<unsigned char, 3>& newImagePixel = newImage.at<Vec3b>(Point(x, y));
+
+            if(cor == "B") {
+                newImagePixel[0] = oldImagePixel[0];
+                newImagePixel[1] = 0;
+                newImagePixel[2] = 0;
+
+            }
+
+            if(cor == "G") {
+                newImagePixel[0] = 0;
+                newImagePixel[1] = oldImagePixel[1];
+                newImagePixel[2] = 0;
+            }
+
+            if(cor == "R") {
+                newImagePixel[0] = 0;
+                newImagePixel[1] = 0;
+                newImagePixel[2] = oldImagePixel[2];
+            }
+
+        }
+    }
+
+    return newImage;
 }
 
 
@@ -67,12 +111,15 @@ int main(int argc, char** argv )
         return -1;
     }
 
-    // converterParaCinza(image);
-    converterParaCorInvertida(image);
-    // converterParaLimiar(image, 50);
+    // Mat transformedImage = converterParaCinza(image);
+    // Mat transformedImage = converterParaCorInvertida(image);
+    // Mat transformedImage = converterParaLimiar(image, 50);
+    Mat transformedImage = isolarCanalDeCor("R", image);
+
+
 
     namedWindow("Display Image", WINDOW_AUTOSIZE );
-    imshow("Display Image", image);
+    imshow("Display Image", transformedImage);
     waitKey(0);
 
     return 0;
