@@ -1,13 +1,16 @@
 #include <stdio.h>
 #include <opencv2/opencv.hpp>
+#include <vector>
 using namespace cv;
 
 void converterParaCinza(Mat& image) {
     for(int x = 0; x < image.size().width; x++) {
         for(int y = 0; y < image.size().height; y++) {
-            image.at<Vec3b>(Point(x, y))[0] = image.at<Vec3b>(y, x)[0] * 0.114; // blue
-            image.at<Vec3b>(Point(x, y))[1] = image.at<Vec3b>(y, x)[1] * 0.587; // green
-            image.at<Vec3b>(Point(x, y))[2] = image.at<Vec3b>(y, x)[2] * 0.299; // red
+            int blue  = image.at<Vec3b>(y, x)[0];
+            int green = image.at<Vec3b>(y, x)[1];
+            int red   = image.at<Vec3b>(y, x)[2];
+            Vec<unsigned char, 3>& pixel = image.at<Vec3b>(Point(x, y));
+            pixel[0] = pixel[1] = pixel[2] = blue * 0.114 + green * 0.587 + red * 0.229; // blue
         } 
     }
 }
@@ -15,9 +18,10 @@ void converterParaCinza(Mat& image) {
 void converterParaCorInvertida(Mat& image) {
     for(int x = 0; x < image.size().width; x++) {
         for(int y = 0; y < image.size().height; y++) {
-            image.at<Vec3b>(Point(x, y))[0] = 255 - image.at<Vec3b>(y, x)[0]; // blue
-            image.at<Vec3b>(Point(x, y))[1] = 255 - image.at<Vec3b>(y, x)[1]; // green
-            image.at<Vec3b>(Point(x, y))[2] = 255 - image.at<Vec3b>(y, x)[2]; // red
+            Vec<unsigned char, 3>& pixel = image.at<Vec3b>(Point(x, y));
+            pixel[0] = 255 - image.at<Vec3b>(y, x)[0]; // blue
+            pixel[1] = 255 - image.at<Vec3b>(y, x)[1]; // green
+            pixel[2] = 255 - image.at<Vec3b>(y, x)[2]; // red
         } 
     }
 }
@@ -54,6 +58,7 @@ int main(int argc, char** argv )
         printf("usage: DisplayImage.out <Image_Path>\n");
         return -1;
     }
+
     Mat image;
     image = imread( argv[1], 1 );
     if ( !image.data )
@@ -62,7 +67,10 @@ int main(int argc, char** argv )
         return -1;
     }
 
-    converterParaCinza(image);
+    // converterParaCinza(image);
+    converterParaCorInvertida(image);
+    // converterParaLimiar(image, 50);
+
     namedWindow("Display Image", WINDOW_AUTOSIZE );
     imshow("Display Image", image);
     waitKey(0);
