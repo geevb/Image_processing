@@ -152,6 +152,36 @@ Mat zoomIn(int zoomValue, Mat image) {
     return newImage;
 }
 
+Mat somarImagem(Mat img1, Mat img2) {
+    int height = (img1.size().height > img2.size().height) ? img1.size().height : img2.size().height;
+    int width  = (img1.size().width > img2.size().width) ? img1.size().width : img2.size().width;
+    Mat newImg(height, width, CV_8UC3, Scalar(255, 255, 255));
+    for(int y = 0; y < newImg.size().height; y++) {
+        for(int x = 0; x < newImg.size().width; x++) {
+            Vec<unsigned char, 3>& newImgPixel = newImg.at<Vec3b>(Point(x, y));
+            Vec<unsigned char, 3>& pxlImg1 = img1.at<Vec3b>(Point(x, y));
+            Vec<unsigned char, 3>& pxlImg2 = img2.at<Vec3b>(Point(x, y));
+            if(x > img1.size().width || y > img1.size().height ||
+               x > img2.size().width || y > img2.size().height) 
+            {
+                newImgPixel[0] = 255;
+                newImgPixel[1] = 255;
+                newImgPixel[2] = 255;
+                continue;
+            }
+
+            int add0 = pxlImg1[0] + pxlImg2[0];
+            int add1 = pxlImg1[1] + pxlImg2[1];
+            int add2 = pxlImg1[2] + pxlImg2[2];
+            newImgPixel[0] = (add0 > 255) ? 255 : add0;
+            newImgPixel[1] = (add1 > 255) ? 255 : add1;
+            newImgPixel[2] = (add2 > 255) ? 255 : add2;
+        }
+    }
+
+    return newImg;
+}
+
 Mat subtrairImagem(Mat imgMinuendo, Mat imgSubtraendo) {
     Mat newImg(imgMinuendo.size().height, imgMinuendo.size().width, CV_8UC3, Scalar(0,0,0));
     for(int y = 0; y < newImg.size().height; y++) {
@@ -190,7 +220,7 @@ int main(int argc, char** argv )
     image = imread( argv[1], 1 );
 
     Mat image2;
-    image2 = imread("black.png");
+    image2 = imread("white.png");
     if ( !image.data || !image2.data )
     {
         printf("No image data \n");
@@ -203,7 +233,8 @@ int main(int argc, char** argv )
     // Mat transformedImage = isolarCanalDeCor("R", image);
     // Mat transformedImage = incrementarCanaisDeDor("R", 0, 255, image);
     // Mat transformedImage = zoomIn(2, image);
-    Mat transformedImage = subtrairImagem(image, image2);
+    // Mat transformedImage = subtrairImagem(image, image2);
+    Mat transformedImage = somarImagem(image, image2);
 
 
 
