@@ -72,21 +72,17 @@ Mat isolarCanalDeCor(std::string cor, Mat image) {
 
             if(cor == "B") {
                 newImagePixel[0] = oldImagePixel[0];
-                newImagePixel[1] = 0;
-                newImagePixel[2] = 0;
-
+                newImagePixel[1] = newImagePixel[2] = 0;
             }
 
             if(cor == "G") {
-                newImagePixel[0] = 0;
                 newImagePixel[1] = oldImagePixel[1];
-                newImagePixel[2] = 0;
+                newImagePixel[0] = newImagePixel[2] = 0;
             }
 
             if(cor == "R") {
-                newImagePixel[0] = 0;
-                newImagePixel[1] = 0;
                 newImagePixel[2] = oldImagePixel[2];
+                newImagePixel[0] = newImagePixel[1] = 0;
             }
 
         }
@@ -164,9 +160,7 @@ Mat somarImagem(Mat img1, Mat img2) {
             if(x > img1.size().width || y > img1.size().height ||
                x > img2.size().width || y > img2.size().height) 
             {
-                newImgPixel[0] = 255;
-                newImgPixel[1] = 255;
-                newImgPixel[2] = 255;
+                newImgPixel[0] = newImgPixel[1] = newImgPixel[2] = 255;
                 continue;
             }
 
@@ -208,24 +202,54 @@ Mat subtrairImagem(Mat imgMinuendo, Mat imgSubtraendo) {
     return newImg;
 }
 
+
+void menuInicial() {
+    std::cout <<"    ____  _       _ __        __   ____                         "      << std::endl;
+    std::cout <<"   / __ \\(_)___ _(_) /_____ _/ /  /  _/___ ___  ____ _____ ____ "     << std::endl;
+    std::cout <<"  / / / / / __ `/ / __/ __ `/ /   / // __ `__ \\/ __ `/ __ `/ _ \\"    << std::endl;
+    std::cout <<" / /_/ / / /_/ / / /_/ /_/ / /  _/ // / / / / / /_/ / /_/ /  __/"      << std::endl;
+    std::cout <<"/_____/_/\\__, /_/\\__/\\__,_/_/  /___/_/ /_/ /_/\\__,_/\\__, /\\___/ "<< std::endl;
+    std::cout <<"        /____/                                     /____/       "      << std::endl;
+    std::cout <<"                           .---."              << std::endl;
+    std::cout <<"                           |[X]|"              << std::endl;
+    std::cout <<"                    _.==._.\"\"\"\"\".___n__"  << std::endl;
+    std::cout <<"                   d __ ___.-\'\'-. _____b "   << std::endl;
+    std::cout <<"                   |[__]  /.\"\"\"\".\\     |" << std::endl;
+    std::cout <<"                   |     // /\"\"\\ \\\\    |" << std::endl;
+    std::cout <<"                   |     \\\\ \\__/ //    |"   << std::endl;
+    std::cout <<"                   |pentax\\`.__.\'/     |"    << std::endl;
+    std::cout <<"                   \\=======`-..-\'======/"    << std::endl;
+    std::cout <<"                    `-----------------\' "     << std::endl;
+    std::cout <<"       ____                                 _            "    << std::endl;
+    std::cout <<"      / __ \\_________  ________  __________(_)___  ____ _"   << std::endl;
+    std::cout <<"     / /_/ / ___/ __ \\/ ___/ _ \\/ ___/ ___/ / __ \\/ __ `/" << std::endl;
+    std::cout <<"    / ____/ /  / /_/ / /__/  __(__  |__  ) / / / / /_/ / "    << std::endl;
+    std::cout <<"   /_/   /_/   \\____/\\___/\\___/____/____/_/_/ /_/\\__, /  "<< std::endl;
+    std::cout <<"                                                /____/   "    << std::endl;
+
+ 
+}
+
 int main(int argc, char** argv )
 {
-    if ( argc != 2 )
-    {
-        printf("usage: DisplayImage.out <Image_Path>\n");
-        return -1;
-    }
+    // if ( argc != 2 )
+    // {
+    //     printf("usage: DisplayImage.out <Image_Path>\n");
+    //     return -1;
+    // }
 
-    Mat image;
-    image = imread( argv[1], 1 );
+    // Mat image;
+    // image = imread( argv[1], 1 );
 
-    Mat image2;
-    image2 = imread("white.png");
-    if ( !image.data || !image2.data )
-    {
-        printf("No image data \n");
-        return -1;
-    }
+    // Mat image2;
+    // image2 = imread("white.png");
+    // if ( !image.data || !image2.data )
+    // {
+    //     printf("No image data \n");
+    //     return -1;
+    // }
+
+
 
     // Mat transformedImage = converterParaCinza(image);
     // Mat transformedImage = converterParaCorInvertida(image);
@@ -234,12 +258,12 @@ int main(int argc, char** argv )
     // Mat transformedImage = incrementarCanaisDeDor("R", 0, 255, image);
     // Mat transformedImage = zoomIn(2, image);
     // Mat transformedImage = subtrairImagem(image, image2);
-    Mat transformedImage = somarImagem(image, image2);
-
+    // Mat transformedImage = somarImagem(image, image2);
+    menuInicial();
 
 
     namedWindow("Display Image", WINDOW_AUTOSIZE );
-    imshow("Display Image", transformedImage);
+    // imshow("Display Image", transformedImage);
     waitKey(0);
 
     return 0;
