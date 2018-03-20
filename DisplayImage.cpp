@@ -1,7 +1,27 @@
 #include <stdio.h>
+#include "opencv2/highgui/highgui.hpp"
+#include "opencv2/imgproc/imgproc.hpp"
 #include <opencv2/opencv.hpp>
 #include <vector>
+#include <fstream>
 using namespace cv;
+
+//EFICIENCIA
+// for(int i = 0; i < img.rows; ++i)
+// {
+//     // get pointers to each row
+//     cv::Vec3b* row = img.ptr<cv::Vec3b>(i);
+
+//     // now scan the row
+//     for(int j = 0; j < img.cols; ++j)
+//     {   
+//         cv::Vec3b pixel = row[j];
+//         uchar r = pixel[2];
+//         uchar g = pixel[1];
+//         uchar b = pixel[0];
+//         process(r, g, b);
+//     } 
+// }
 
 Mat converterParaCinza(Mat image) {
     Mat newImage(image.size().height, image.size().width, CV_8UC3, Scalar(0,0,0));
@@ -15,6 +35,81 @@ Mat converterParaCinza(Mat image) {
     }
 
     return newImage;
+}
+
+void makeHistogramCsv(Mat image) {
+
+    std::ofstream myfile;
+    myfile.open ("colors.csv");
+    for(int y = 0; y < image.size().height; y++) {
+        for(int x = 0; x < image.size().width; x++) {     
+            Vec<unsigned char, 3>& imagePixel = image.at<Vec3b>(Point(x, y));
+
+            myfile << +imagePixel[0] << ",";
+            myfile << +imagePixel[1] << ",";
+            myfile << +imagePixel[2] << "\n";
+        } 
+    }
+
+    myfile.close();
+
+
+    // system("./criarGrafico.py");
+}
+
+int showHistogram(Mat image) {
+    /// Separate the image in 3 places ( B, G and R )
+  std::vector<Mat> bgr_planes;
+  split( image, bgr_planes );
+
+  /// Establish the number of bins
+  int histSize = 256;
+
+  /// Set the ranges ( for B,G,R) )
+  float range[] = { 0, 256 } ;
+  const float* histRange = { range };
+
+  bool uniform = true; bool accumulate = false;
+
+  Mat b_hist, g_hist, r_hist;
+
+  /// Compute the histograms:
+  calcHist( &bgr_planes[0], 1, 0, Mat(), b_hist, 1, &histSize, &histRange, uniform, accumulate );
+  calcHist( &bgr_planes[1], 1, 0, Mat(), g_hist, 1, &histSize, &histRange, uniform, accumulate );
+  calcHist( &bgr_planes[2], 1, 0, Mat(), r_hist, 1, &histSize, &histRange, uniform, accumulate );
+
+  // Draw the histograms for B, G and R
+  int hist_w = 512; int hist_h = 400;
+  int bin_w = cvRound( (double) hist_w/histSize );
+
+  Mat histImage( hist_h, hist_w, CV_8UC3, Scalar( 0,0,0) );
+
+  /// Normalize the result to [ 0, histImage.rows ]
+  normalize(b_hist, b_hist, 0, histImage.rows, NORM_MINMAX, -1, Mat() );
+  normalize(g_hist, g_hist, 0, histImage.rows, NORM_MINMAX, -1, Mat() );
+  normalize(r_hist, r_hist, 0, histImage.rows, NORM_MINMAX, -1, Mat() );
+
+  /// Draw for each channel
+  for( int i = 1; i < histSize; i++ )
+  {
+      line( histImage, Point( bin_w*(i-1), hist_h - cvRound(b_hist.at<float>(i-1)) ) ,
+                       Point( bin_w*(i), hist_h - cvRound(b_hist.at<float>(i)) ),
+                       Scalar( 255, 0, 0), 2, 8, 0  );
+      line( histImage, Point( bin_w*(i-1), hist_h - cvRound(g_hist.at<float>(i-1)) ) ,
+                       Point( bin_w*(i), hist_h - cvRound(g_hist.at<float>(i)) ),
+                       Scalar( 0, 255, 0), 2, 8, 0  );
+      line( histImage, Point( bin_w*(i-1), hist_h - cvRound(r_hist.at<float>(i-1)) ) ,
+                       Point( bin_w*(i), hist_h - cvRound(r_hist.at<float>(i)) ),
+                       Scalar( 0, 0, 255), 2, 8, 0  );
+  }
+
+    /// Display
+  namedWindow("calcHist Demo", CV_WINDOW_AUTOSIZE );
+  imshow("calcHist Demo", histImage );
+
+  waitKey(0);
+
+  return 0;
 }
 
 Mat converterParaCorInvertida(Mat image) {
@@ -210,36 +305,36 @@ void menuInicial() {
     std::cout <<" / /_/ / / /_/ / / /_/ /_/ / /  _/ // / / / / / /_/ / /_/ /  __/"      << std::endl;
     std::cout <<"/_____/_/\\__, /_/\\__/\\__,_/_/  /___/_/ /_/ /_/\\__,_/\\__, /\\___/ "<< std::endl;
     std::cout <<"        /____/                                     /____/       "      << std::endl;
-    std::cout <<"                           .---."              << std::endl;
-    std::cout <<"                           |[X]|"              << std::endl;
-    std::cout <<"                    _.==._.\"\"\"\"\".___n__"  << std::endl;
-    std::cout <<"                   d __ ___.-\'\'-. _____b "   << std::endl;
-    std::cout <<"                   |[__]  /.\"\"\"\".\\     |" << std::endl;
-    std::cout <<"                   |     // /\"\"\\ \\\\    |" << std::endl;
-    std::cout <<"                   |     \\\\ \\__/ //    |"   << std::endl;
-    std::cout <<"                   |pentax\\`.__.\'/     |"    << std::endl;
-    std::cout <<"                   \\=======`-..-\'======/"    << std::endl;
-    std::cout <<"                    `-----------------\' "     << std::endl;
-    std::cout <<"       ____                                 _            "    << std::endl;
-    std::cout <<"      / __ \\_________  ________  __________(_)___  ____ _"   << std::endl;
-    std::cout <<"     / /_/ / ___/ __ \\/ ___/ _ \\/ ___/ ___/ / __ \\/ __ `/" << std::endl;
-    std::cout <<"    / ____/ /  / /_/ / /__/  __(__  |__  ) / / / / /_/ / "    << std::endl;
-    std::cout <<"   /_/   /_/   \\____/\\___/\\___/____/____/_/_/ /_/\\__, /  "<< std::endl;
-    std::cout <<"                                                /____/   "    << std::endl;
+    std::cout <<"                           .---."                                      << std::endl;
+    std::cout <<"                           |[X]|"                                      << std::endl;
+    std::cout <<"                    _.==._.\"\"\"\"\".___n__"                          << std::endl;
+    std::cout <<"                   d __ ___.-\'\'-. _____b "                           << std::endl;
+    std::cout <<"                   |[__]  /.\"\"\"\".\\     |"                         << std::endl;
+    std::cout <<"                   |     // /\"\"\\ \\\\    |"                         << std::endl;
+    std::cout <<"                   |     \\\\ \\__/ //    |"                           << std::endl;
+    std::cout <<"                   |pentax\\`.__.\'/     |"                            << std::endl;
+    std::cout <<"                   \\=======`-..-\'======/"                            << std::endl;
+    std::cout <<"                    `-----------------\' "                             << std::endl;
+    std::cout <<"       ____                                 _            "             << std::endl;
+    std::cout <<"      / __ \\_________  ________  __________(_)___  ____ _"            << std::endl;
+    std::cout <<"     / /_/ / ___/ __ \\/ ___/ _ \\/ ___/ ___/ / __ \\/ __ `/"          << std::endl;
+    std::cout <<"    / ____/ /  / /_/ / /__/  __(__  |__  ) / / / / /_/ / "             << std::endl;
+    std::cout <<"   /_/   /_/   \\____/\\___/\\___/____/____/_/_/ /_/\\__, /  "         << std::endl;
+    std::cout <<"                                                /____/   "             << std::endl;
 
  
 }
 
 int main(int argc, char** argv )
 {
-    // if ( argc != 2 )
-    // {
-    //     printf("usage: DisplayImage.out <Image_Path>\n");
-    //     return -1;
-    // }
+    if ( argc != 2 )
+    {
+        printf("usage: DisplayImage.out <Image_Path>\n");
+        return -1;
+    }
 
-    // Mat image;
-    // image = imread( argv[1], 1 );
+    Mat image;
+    image = imread( argv[1], 1 );
 
     // Mat image2;
     // image2 = imread("white.png");
@@ -260,6 +355,8 @@ int main(int argc, char** argv )
     // Mat transformedImage = subtrairImagem(image, image2);
     // Mat transformedImage = somarImagem(image, image2);
     menuInicial();
+    // showHistogram(image);
+    // makeHistogramCsv(image);
 
 
     namedWindow("Display Image", WINDOW_AUTOSIZE );
