@@ -95,7 +95,7 @@ int perguntarValorZoom() {
     std::cin >> valor;
 
     while(true) {
-        if(isdigit(valor) && valor > 0) {
+        if(valor > 0) {
             break;
         }
         std::cout << "Valor inválido inserido, por favor reinserir! \nR: ";

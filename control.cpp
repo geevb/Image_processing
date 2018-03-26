@@ -8,13 +8,23 @@
 #include "filters.cpp"
 #include "view.cpp"
 
+struct valores{
+    std::string cor;
+    cv::Mat segundaImagem;
+    int zoom;
+    int limiar;
+    int tipo;
+    int valor;
+};
+
 std::string verificarTipoExibicao();
 int executarComWebcam();
 void executarComImagem();
 cv::Mat verificarImagemEscolhida(std::string nomeImagem);
 void executarTipo(std::string tipo);
 void fluxo();
-cv::Mat aplicarFiltroNaImagem(int filtro, cv::Mat imagem);
+cv::Mat aplicarFiltroNaImagem(int filtro, cv::Mat imagem, valores vals);
+valores pegarValoresDoFiltro(int filtro);
 
 std::string verificarTipoExibicao() {
     return perguntarTipoExibicao();
@@ -22,6 +32,7 @@ std::string verificarTipoExibicao() {
 
 int executarComWebcam() {
     int filtro = perguntarQualFiltro();
+    valores vals = pegarValoresDoFiltro(filtro);
     VideoCapture cap;
         if(!cap.open(0))
             return 0;
@@ -29,7 +40,7 @@ int executarComWebcam() {
         {
             Mat frame;
             cap >> frame;
-            frame = aplicarFiltroNaImagem(filtro, frame);
+            frame = aplicarFiltroNaImagem(filtro, frame, vals);
             if( frame.empty() ) break;
             // imshow("Webcam image", frame);
             apresentarVideo(frame);
@@ -43,7 +54,10 @@ void executarComImagem() {
     cv::Mat image = verificarImagemEscolhida(imagem);
 
     int filtro = perguntarQualFiltro();
-    cv::Mat filteredImage = aplicarFiltroNaImagem(filtro, image);
+    valores vals = pegarValoresDoFiltro(filtro);
+
+    cv::Mat filteredImage = aplicarFiltroNaImagem(filtro, image, vals);
+
     apresentarImagem(filteredImage);
 }
 
@@ -70,7 +84,50 @@ void executarTipo(std::string tipo) {
     }
 }
 
-cv::Mat aplicarFiltroNaImagem(int filtro, cv::Mat imagem) {
+valores pegarValoresDoFiltro(int filtro) {
+
+    valores vals;
+
+    switch(filtro) {
+        case 4: {
+            vals.limiar = perguntarQualValorLimiar();
+            break;
+        }
+        case 5: {
+            std::string cor = perguntarQualCor();
+            vals.cor = cor;
+            break;
+        }
+        case 6:{
+            // TODO PEGAR COR, TIPO, VALOR
+            vals.cor = perguntarQualCor();
+            vals.valor = 1;
+            break;
+        }
+        case 7: {
+            vals.zoom = perguntarValorZoom();
+            break;
+        }
+        case 8: {
+            std::string nomeImagem = perguntarSegundaImagem();
+            Mat secondImage = verificarImagemEscolhida(nomeImagem);
+            vals.segundaImagem = secondImage;
+            break;
+        }
+        case 9: {
+            std::string nomeImagem = perguntarSegundaImagem();
+            Mat secondImage = verificarImagemEscolhida(nomeImagem);
+            vals.segundaImagem = secondImage;
+            break;
+        }
+        default:
+            break;
+    }
+
+    return vals;
+}
+
+cv::Mat aplicarFiltroNaImagem(int filtro, cv::Mat imagem, valores vals) {
     cv::Mat filteredImage;
     switch(filtro) {
         case 1:{
@@ -86,36 +143,29 @@ cv::Mat aplicarFiltroNaImagem(int filtro, cv::Mat imagem) {
             break;
         }
         case 4: {
-            int limiar = perguntarQualValorLimiar();
-            filteredImage = limiarizar(imagem, limiar);
+            filteredImage = limiarizar(imagem, vals.limiar);
             break;
         }
         case 5: {
-            std::string cor = perguntarQualCor();
-            filteredImage = isolarCanalDeCor(cor, imagem);
+            filteredImage = isolarCanalDeCor(vals.cor, imagem);
             break;
         }
         case 6:{
             // TODO PEGAR COR, TIPO, VALOR
             std::string cor = perguntarQualCor();
-            filteredImage = incrementarCanaisDeDor(cor, 0, 0, imagem);
+            filteredImage = incrementarCanaisDeDor(vals.cor, vals.tipo, vals.valor, imagem);
             break;
         }
         case 7: {
-            int valorZoom = perguntarValorZoom();
-            filteredImage = zoomIn(0, imagem);
+            filteredImage = zoomIn(vals.zoom, imagem);
             break;
         }
         case 8: {
-            std::string nomeImagem = perguntarSegundaImagem();
-            Mat secondImage = verificarImagemEscolhida(nomeImagem);
-            filteredImage = somarImagem(imagem, secondImage);
+            filteredImage = somarImagem(imagem, vals.segundaImagem);
             break;
         }
         case 9: {
-            std::string nomeImagem = perguntarSegundaImagem();
-            Mat secondImage = verificarImagemEscolhida(nomeImagem);
-            filteredImage = subtrairImagem(imagem, filteredImage);
+            filteredImage = subtrairImagem(imagem, vals.segundaImagem);
             break;
         }
         default:
