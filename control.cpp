@@ -9,19 +9,33 @@
 #include "view.cpp"
 
 std::string verificarTipoExibicao();
-void executarComWebcam();
+int executarComWebcam();
 void executarComImagem();
 cv::Mat verificarImagemEscolhida(std::string nomeImagem);
 void executarTipo(std::string tipo);
 void fluxo();
-void aplicarFiltroNaImagem(int filtro, cv::Mat imagem);
+cv::Mat aplicarFiltroNaImagem(int filtro, cv::Mat imagem);
 
 std::string verificarTipoExibicao() {
     return perguntarTipoExibicao();
 }
 
-void executarComWebcam() {
-
+int executarComWebcam() {
+    int filtro = perguntarQualFiltro();
+    VideoCapture cap;
+        if(!cap.open(0))
+            return 0;
+        for(;;)
+        {
+            Mat frame;
+            cap >> frame;
+            frame = aplicarFiltroNaImagem(filtro, frame);
+            if( frame.empty() ) break;
+            // imshow("Webcam image", frame);
+            apresentarVideo(frame);
+              if( waitKey(30) >= 0 ) break;
+        }
+    return 0;
 }
 
 void executarComImagem() {
@@ -29,8 +43,8 @@ void executarComImagem() {
     cv::Mat image = verificarImagemEscolhida(imagem);
 
     int filtro = perguntarQualFiltro();
-    aplicarFiltroNaImagem(filtro, image);
-
+    cv::Mat filteredImage = aplicarFiltroNaImagem(filtro, image);
+    apresentarImagem(filteredImage);
 }
 
 cv::Mat verificarImagemEscolhida(std::string nomeImagem) {
@@ -50,13 +64,13 @@ cv::Mat verificarImagemEscolhida(std::string nomeImagem) {
 
 void executarTipo(std::string tipo) {
     if(tipo.compare("1") == 0) {
-        // executarComWebcam();
+        executarComWebcam();
     } else {
         executarComImagem();
     }
 }
 
-void aplicarFiltroNaImagem(int filtro, cv::Mat imagem) {
+cv::Mat aplicarFiltroNaImagem(int filtro, cv::Mat imagem) {
     cv::Mat filteredImage;
     switch(filtro) {
         case 1:{
@@ -92,13 +106,15 @@ void aplicarFiltroNaImagem(int filtro, cv::Mat imagem) {
             filteredImage = zoomIn(0, imagem);
             break;
         }
-        case 8:
-            // TODO PEGAR SEGUNDA IMAGEM
-            {
-            filteredImage = somarImagem(imagem, filteredImage);
+        case 8: {
+            std::string nomeImagem = perguntarSegundaImagem();
+            Mat secondImage = verificarImagemEscolhida(nomeImagem);
+            filteredImage = somarImagem(imagem, secondImage);
             break;
         }
         case 9: {
+            std::string nomeImagem = perguntarSegundaImagem();
+            Mat secondImage = verificarImagemEscolhida(nomeImagem);
             filteredImage = subtrairImagem(imagem, filteredImage);
             break;
         }
@@ -107,7 +123,7 @@ void aplicarFiltroNaImagem(int filtro, cv::Mat imagem) {
             break;
     }
 
-    apresentarImagem(filteredImage);
+    return filteredImage;
 }
 
 void fluxo() {

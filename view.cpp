@@ -30,7 +30,7 @@ void menuInicial() {
 
 std::string perguntarTipoExibicao() {
     std::string resp;
-    std::cout << "\nDeseja aplicar os filtros na Webcam ou em uma imagem?" << std::endl;
+    std::cout << "\nDeseja aplicar um dos filtros na Webcam ou em uma imagem?" << std::endl;
     std::cout << "1) Webcam \n2) Imagem:\nR: ";   
 
     while(true) {
@@ -58,7 +58,7 @@ std::string perguntarQualImagem() {
 int perguntarQualFiltro() {
     int resp;
     std::cout << "\nPor favor, escolha um dos filtros disponíveis: " << std::endl;
-    std::cout << "1) Cinza Média \n2) Cinza Ponderado \n3) Cor Invertida \n4) Limiarizacao \n5) Canal de cor isolado \n6)Incrementar Canal de cor \n7) Zoom In \n8) Somar imagem \n9) Subtrair imagem";
+    std::cout << "1) Cinza Média \n2) Cinza Ponderado \n3) Cor Invertida \n4) Limiarizacao \n5) Canal de cor isolado \n6) Incrementar Canal de cor \n7) Zoom In \n8) Somar imagem \n9) Subtrair imagem";
     std::cout << "\nR: ";
     std::cin >> resp;
     
@@ -105,7 +105,15 @@ int perguntarValorZoom() {
     return valor;
 }
 
+std::string perguntarSegundaImagem() {
+    std::string resp;
+    std::cout <<  "\nPor favor, para a segunda imagem, escolha uma das seguintes: " << std::endl;
+    system ("ls images/");
+    std::cout << "\nR:";
+    std::cin >> resp;
 
+    return resp;
+}
 
 int perguntarQualValorLimiar() {
     int resp;
@@ -121,4 +129,8 @@ void apresentarImagem(cv::Mat image) {
     cv::imshow("Display Image", image);
     // cvSetMouseCallback("Display Image", cv::mouseHandler,cv::&mouseParam);
     cv::waitKey(0);
+}
+
+void apresentarVideo(cv::Mat frame) {
+    cv::imshow("Webcam image", frame);
 }
