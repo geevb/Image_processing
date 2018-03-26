@@ -1,11 +1,4 @@
-#include <stdio.h>
-#include "opencv2/highgui/highgui.hpp"
-#include "opencv2/imgproc/imgproc.hpp"
-#include <opencv2/opencv.hpp>
-#include <vector>
-#include <fstream>
 #include "control.cpp"
-using namespace cv;
 
 //EFICIENCIA
 // for(int i = 0; i < img.rows; ++i)
@@ -26,13 +19,10 @@ using namespace cv;
 
 
 
-int main(int argc, char** argv )
-{
+int main() {
     fluxo();
-
     // int mouseParam = CV_EVENT_FLAG_LBUTTON;
     // cvSetMouseCallback("Display Image",mouseHandler,&mouseParam);
-
     return 0;
 }
 

@@ -90,14 +90,11 @@ int presentHistogram(Mat image) {
 }
 
 int showHistogram(Mat image) {
-    /// Separate the image in 3 places ( B, G and R )
   std::vector<Mat> bgr_planes;
   split( image, bgr_planes );
 
-  /// Establish the number of bins
   int histSize = 256;
 
-  /// Set the ranges ( for B,G,R) )
   float range[] = { 0, 256 } ;
   const float* histRange = { range };
 
@@ -105,23 +102,19 @@ int showHistogram(Mat image) {
 
   Mat b_hist, g_hist, r_hist;
 
-  /// Compute the histograms:
   calcHist( &bgr_planes[0], 1, 0, Mat(), b_hist, 1, &histSize, &histRange, uniform, accumulate );
   calcHist( &bgr_planes[1], 1, 0, Mat(), g_hist, 1, &histSize, &histRange, uniform, accumulate );
   calcHist( &bgr_planes[2], 1, 0, Mat(), r_hist, 1, &histSize, &histRange, uniform, accumulate );
 
-  // Draw the histograms for B, G and R
   int hist_w = 900; int hist_h = 800;
   int bin_w = cvRound( (double) hist_w/histSize );
 
   Mat histImage( hist_h, hist_w, CV_8UC3, Scalar( 0,0,0) );
 
-  /// Normalize the result to [ 0, histImage.rows ]
   normalize(b_hist, b_hist, 0, histImage.rows, NORM_MINMAX, -1, Mat() );
   normalize(g_hist, g_hist, 0, histImage.rows, NORM_MINMAX, -1, Mat() );
   normalize(r_hist, r_hist, 0, histImage.rows, NORM_MINMAX, -1, Mat() );
 
-  /// Draw for each channel
   for( int i = 1; i < histSize; i++ )
   {
       line( histImage, Point( bin_w*(i-1), hist_h - cvRound(b_hist.at<float>(i-1)) ) ,
@@ -136,10 +129,10 @@ int showHistogram(Mat image) {
   }
 
     /// Display
-  namedWindow("calcHist Demo", CV_WINDOW_AUTOSIZE );
-  imshow("calcHist Demo", histImage );
+  namedWindow("Histogram", CV_WINDOW_AUTOSIZE );
+  imshow("Histogram", histImage );
 
-  waitKey(0);
+//   waitKey(0);
 
   return 0;
 }
@@ -239,7 +232,7 @@ Mat incrementarCanaisDeDor(std::string cor, int tipo, int valor, Mat image) {
 }
 
 Mat zoomIn(int zoomValue, Mat image) {
-    if (zoomValue == 1) return image;
+    if (zoomValue <= 1) return image;
 
     Mat newImage(image.size().height * zoomValue, image.size().width * zoomValue, CV_8UC3, Scalar(0,0,0));
     for(int y = 0; y < image.rows; y++) {
@@ -247,10 +240,10 @@ Mat zoomIn(int zoomValue, Mat image) {
             Vec<unsigned char, 3>& oldImagePixel = image.at<Vec3b>(Point(x, y));       
             Vec<unsigned char, 3>& newImagePixel = newImage.at<Vec3b>(Point(x, y));
 
-            newImage.at<Vec3b>(Point(x*zoomValue, y*zoomValue)) = oldImagePixel;
-            newImage.at<Vec3b>(Point(x*zoomValue +1, y*zoomValue)) = oldImagePixel;
-            newImage.at<Vec3b>(Point(x*zoomValue, y*zoomValue +1)) = oldImagePixel;
-            newImage.at<Vec3b>(Point(x*zoomValue +1, y*zoomValue +1)) = oldImagePixel;
+            newImage.at<Vec3b>(Point(x*zoomValue    , y*zoomValue)) = oldImagePixel;
+            newImage.at<Vec3b>(Point(x*zoomValue +1 , y*zoomValue)) = oldImagePixel;
+            newImage.at<Vec3b>(Point(x*zoomValue    , y*zoomValue +1)) = oldImagePixel;
+            newImage.at<Vec3b>(Point(x*zoomValue +1 , y*zoomValue +1)) = oldImagePixel;
         }
     }
 

@@ -63,7 +63,7 @@ int perguntarQualFiltro() {
     std::cin >> resp;
     
     while(true) {
-        if(resp >= 1 && resp <= 9) {
+        if(resp >= 1) {
             break;
         }
         

@@ -8,7 +8,7 @@
 #include "filters.cpp"
 #include "view.cpp"
 
-struct valores{
+struct valores {
     std::string cor;
     cv::Mat segundaImagem;
     int zoom;
@@ -34,17 +34,14 @@ int executarComWebcam() {
     int filtro = perguntarQualFiltro();
     valores vals = pegarValoresDoFiltro(filtro);
     VideoCapture cap;
-        if(!cap.open(0))
-            return 0;
-        for(;;)
-        {
+        if(!cap.open(0)) return 0;
+        for(;;) {
             Mat frame;
             cap >> frame;
             frame = aplicarFiltroNaImagem(filtro, frame, vals);
             if( frame.empty() ) break;
-            // imshow("Webcam image", frame);
             apresentarVideo(frame);
-              if( waitKey(30) >= 0 ) break;
+            if( waitKey(30) >= 0 ) break;
         }
     return 0;
 }
@@ -166,6 +163,11 @@ cv::Mat aplicarFiltroNaImagem(int filtro, cv::Mat imagem, valores vals) {
         }
         case 9: {
             filteredImage = subtrairImagem(imagem, vals.segundaImagem);
+            break;
+        }
+        case 10: {
+            filteredImage = imagem;
+            showHistogram(imagem);
             break;
         }
         default:
