@@ -41,7 +41,7 @@ int executarComWebcam() {
             frame = aplicarFiltroNaImagem(filtro, frame, vals);
             if( frame.empty() ) break;
             apresentarVideo(frame);
-            if( waitKey(30) >= 0 ) break;
+            if( waitKey(1) >= 0 ) break;
         }
     return 0;
 }
@@ -53,8 +53,7 @@ void executarComImagem() {
     int filtro = perguntarQualFiltro();
     valores vals = pegarValoresDoFiltro(filtro);
 
-    cv::Mat filteredImage = aplicarFiltroNaImagem(filtro, image, vals);
-
+    Mat filteredImage = aplicarFiltroNaImagem(filtro, image, vals);
     apresentarImagem(filteredImage);
 }
 
@@ -96,9 +95,9 @@ valores pegarValoresDoFiltro(int filtro) {
             break;
         }
         case 6:{
-            // TODO PEGAR COR, TIPO, VALOR
             vals.cor = perguntarQualCor();
-            vals.valor = 1;
+            vals.tipo = perguntarTipoAcrescimo();
+            vals.valor = perguntarValorAcrescimo();
             break;
         }
         case 7: {
@@ -148,8 +147,7 @@ cv::Mat aplicarFiltroNaImagem(int filtro, cv::Mat imagem, valores vals) {
             break;
         }
         case 6:{
-            // TODO PEGAR COR, TIPO, VALOR
-            std::string cor = perguntarQualCor();
+            //TODO CORRIGIR BUG
             filteredImage = incrementarCanaisDeDor(vals.cor, vals.tipo, vals.valor, imagem);
             break;
         }

@@ -128,11 +128,8 @@ int showHistogram(Mat image) {
                        Scalar( 0, 0, 255), 2, 8, 0  );
   }
 
-    /// Display
   namedWindow("Histogram", CV_WINDOW_AUTOSIZE );
   imshow("Histogram", histImage );
-
-//   waitKey(0);
 
   return 0;
 }
@@ -198,7 +195,7 @@ Mat isolarCanalDeCor(std::string cor, Mat image) {
 }
 
 Mat incrementarCanaisDeDor(std::string cor, int tipo, int valor, Mat image) {
-    // Tipo 0: Inteiro, 1: Percentual
+    // Tipo 1: Inteiro, 2: Percentual
     Mat newImage(image.size().height, image.size().width, CV_8UC3, Scalar(0,0,0));
     for(int y = 0; y < image.size().height; y++) {
         for(int x = 0; x < image.size().width; x++) {
@@ -206,21 +203,21 @@ Mat incrementarCanaisDeDor(std::string cor, int tipo, int valor, Mat image) {
             Vec<unsigned char, 3>& newImagePixel = newImage.at<Vec3b>(Point(x, y));
 
             if(cor == "B") {
-                double novoValor = (tipo == 0) ? oldImagePixel[0] + valor : ( oldImagePixel[0] + (oldImagePixel[0] * (valor / 100)));
+                double novoValor = (tipo == 1) ? oldImagePixel[0] + valor : ( oldImagePixel[0] + (oldImagePixel[0] * (valor / 100)));
                 newImagePixel[0] = (novoValor <= 255) ? novoValor : 255;
                 newImagePixel[1] = oldImagePixel[1];
                 newImagePixel[2] = oldImagePixel[2];
             }
             
             if(cor == "G") {
-                double novoValor = (tipo == 0) ? oldImagePixel[1] + valor : ( oldImagePixel[1] + (oldImagePixel[1] * (valor / 100)));
+                double novoValor = (tipo == 1) ? oldImagePixel[1] + valor : ( oldImagePixel[1] + (oldImagePixel[1] * (valor / 100)));
                 newImagePixel[0] = oldImagePixel[0]; 
                 newImagePixel[1] = (novoValor <= 255) ? novoValor : 255;
                 newImagePixel[2] = oldImagePixel[2];
             }
 
             if(cor == "R") {
-                double novoValor = (tipo == 0) ? oldImagePixel[2] + valor : ( oldImagePixel[2] + (oldImagePixel[2] * (valor / 100)));
+                double novoValor = (tipo == 1) ? oldImagePixel[2] + valor : ( oldImagePixel[2] + (oldImagePixel[2] * (valor / 100)));
                 newImagePixel[0] = oldImagePixel[0];
                 newImagePixel[1] = oldImagePixel[1];
                 newImagePixel[2] = (novoValor > 255) ? 255 : novoValor;

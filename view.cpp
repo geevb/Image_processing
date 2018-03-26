@@ -1,4 +1,5 @@
 #include <iostream>
+#include <string>
 #include <sstream>
 #include <stdlib.h>
 #include <opencv2/opencv.hpp>
@@ -28,6 +29,10 @@ void menuInicial() {
     std::cout <<"                                                /____/   "             << std::endl;
 }
 
+void mostrarImagens() {
+    system ("ls images/");
+}
+
 std::string perguntarTipoExibicao() {
     std::string resp;
     std::cout << "\nDeseja aplicar um dos filtros na Webcam ou em uma imagem?" << std::endl;
@@ -47,8 +52,8 @@ std::string perguntarTipoExibicao() {
 
 std::string perguntarQualImagem() {
     std::string resp;
-    std::cout <<  "\nPor favor, escolha uma das seguintes imagens: " << std::endl;
-    system ("ls images/");
+    std::cout <<  "\nPor favor, escolha uma das seguintes imagens:" << std::endl;
+    mostrarImagens();
     std::cout << "\nR:";
     std::cin >> resp;
 
@@ -57,8 +62,9 @@ std::string perguntarQualImagem() {
 
 int perguntarQualFiltro() {
     int resp;
-    std::cout << "\nPor favor, escolha um dos filtros disponíveis: " << std::endl;
-    std::cout << "1) Cinza Média \n2) Cinza Ponderado \n3) Cor Invertida \n4) Limiarizacao \n5) Canal de cor isolado \n6) Incrementar Canal de cor \n7) Zoom In \n8) Somar imagem \n9) Subtrair imagem";
+    std::cout << "\nPor favor, escolha um dos filtros disponíveis:" << std::endl;
+    std::cout << " 1) Cinza Média \n 2) Cinza Ponderado \n 3) Cor Invertida \n 4) Limiarizacao \n 5) Canal de cor isolado";
+    std::cout << "\n 6) Incrementar Canal de cor \n 7) Zoom In \n 8) Somar imagem \n 9) Subtrair imagem \n10) Histograma";
     std::cout << "\nR: ";
     std::cin >> resp;
     
@@ -98,6 +104,7 @@ int perguntarValorZoom() {
         if(valor > 0) {
             break;
         }
+
         std::cout << "Valor inválido inserido, por favor reinserir! \nR: ";
         std::cin >> valor;
     }
@@ -108,7 +115,7 @@ int perguntarValorZoom() {
 std::string perguntarSegundaImagem() {
     std::string resp;
     std::cout <<  "\nPor favor, para a segunda imagem, escolha uma das seguintes: " << std::endl;
-    system ("ls images/");
+    mostrarImagens();
     std::cout << "\nR:";
     std::cin >> resp;
 
@@ -123,13 +130,54 @@ int perguntarQualValorLimiar() {
     return resp;
 }
 
+int perguntarTipoAcrescimo() {
+    int resp = 0;
+    std::cout << "Por favor, insira o tipo de acrescimo que deseja!\n1) Valor Fixo \n2) Percentual \nR: ";
+    std::cin >> resp;
+    
+    return resp;
+}
+
+int perguntarValorAcrescimo() {
+    int resp = 0;
+
+    std::cout << "Por favor, insira o valor de acrescimo \nR: ";
+    std::cin >> resp;
+    return resp;
+}
+
+void onMouse(int event, int x, int y, int flags, void* param){
+    char text[100];
+    cv::Mat img2, img3;
+    cv::Mat img = param.image;
+    if (event == CV_EVENT_LBUTTONDOWN) {
+        cv::Vec3b p = img2.at<cv::Vec3b>(y,x);
+        sprintf(text, "R=%d, G=%d, B=%d", p[2], p[1], p[0]);
+    }
+    else
+        sprintf(text, "x=%d, y=%d", x, y);
+
+    putText(img2, text, cv::Point(5,15), cv::FONT_HERSHEY_PLAIN, 1.0, CV_RGB(0,255,0));
+    imshow("image", img2);
+}
+
 void apresentarImagem(cv::Mat image) {
 
     cv::namedWindow("Display Image", cv::WINDOW_AUTOSIZE );
     cv::imshow("Display Image", image);
-    // cvSetMouseCallback("Display Image", cv::mouseHandler,cv::&mouseParam);
+    cvSetMouseCallback("Display Image", onMouse, &image);
     cv::waitKey(0);
 }
+
+int perguntarDesejaIniciarNovamente() {
+    int resp;
+    std::cout << "Deseja iniciar novamente? \n1) SIM\n2) NAO \nR: ";
+    std::cin >> resp;
+
+    return resp;
+}
+
+
 
 void apresentarVideo(cv::Mat frame) {
     cv::imshow("Webcam image", frame);
