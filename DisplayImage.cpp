@@ -17,15 +17,11 @@
 //     } 
 // }
 
-
-
 int main() {
 
     // while(true) {
         fluxo();
         // if (perguntarDesejaIniciarNovamente() != 1) break;
-        // int mouseParam = CV_EVENT_FLAG_LBUTTON;
-        // cvSetMouseCallback("Display Image",mouseHandler,&mouseParam);
     // }
     return 0;
 }

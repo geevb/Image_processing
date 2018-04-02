@@ -6,8 +6,22 @@
 #include <fstream>
 using namespace cv;
 
+
+    // for(int i = 0; i < newImage.rows; ++i) {
+    //     // get pointers to each row
+    //     cv::Vec3b* row = newImage.ptr<cv::Vec3b>(i);
+
+    //     // now scan the row
+    //     for(int j = 0; j < .cols; ++j) {   
+    //         cv::Vec3b pixel = row[j];
+    //         uchar r = pixel[2];
+    //         uchar g = pixel[1];
+    //         uchar b = pixel[0];
+    //     } 
+    // }
+
 Mat converterParaCinzaMedia(Mat image) {
-    Mat newImage(image.size().height, image.size().width, CV_8UC3, Scalar(0,0,0));
+    Mat newImage(image.rows, image.cols, CV_8UC3, Scalar(0,0,0));
     for(int y = 0; y < newImage.size().height; y++) {
         for(int x = 0; x < newImage.size().width; x++) {
             Vec<unsigned char, 3>& oldImagePixel = image.at<Vec3b>(Point(x, y));  
@@ -27,65 +41,58 @@ Mat converterParaCinzaPonderado(Mat image) {
             Vec<unsigned char, 3>& oldImagePixel = image.at<Vec3b>(Point(x, y));  
             Vec<unsigned char, 3>& pixel = newImage.at<Vec3b>(Point(x, y));
 
-            pixel[0] = pixel[1] = pixel[2] = oldImagePixel[0] * 0.114 + oldImagePixel[1] * 0.587 + oldImagePixel[2] * 0.229; // blue
+            pixel[0] = pixel[1] = pixel[2] = oldImagePixel[0] * 0.114 + oldImagePixel[1] * 0.587 + oldImagePixel[2] * 0.229;
         } 
     }
 
     return newImage;
 }
 
-void makeHistogramCsv(Mat image) {
-    std::ofstream myfile;
-    myfile.open ("colors.csv");
-    for(int y = 0; y < image.size().height; y++) {
-        for(int x = 0; x < image.size().width; x++) {     
-            Vec<unsigned char, 3>& imagePixel = image.at<Vec3b>(Point(x, y));
-
-            myfile << +imagePixel[0] << ",";
-            myfile << +imagePixel[1] << ",";
-            myfile << +imagePixel[2] << "\n";
-        } 
-    }
-
-    myfile.close();
-
-
-    // system("./criarGrafico.py");
-}
-
 int presentHistogram(Mat image) {
-
-    int histRed[256] = {0};
-    int histGreen[256] = {0};
-    int histBlue[256] = {0};
+    std::vector<int> histRed(256, 0);
+    std::vector<int> histGreen(256, 0);
+    std::vector<int> histBlue(256, 0);
     
-    for (int i = 0; i < image.rows; i++)
-        for (int j = 0; j < image.cols; j++)
-        {
-            Vec<unsigned char, 3>& pixels = image.at<Vec3b>(Point(j, i));
-            int red = pixels[0];
-            int green = pixels[1];
-            int blue = pixels[2];
-            histRed[red] = histRed[red] +1;
-            histBlue[blue] = histBlue[blue] +1;
-            histGreen[green] = histGreen[green] +1;
+    for (int y = 0; y < image.rows; y++) {
+        for (int x = 0; x < image.cols; x++) {
+            Vec<unsigned char, 3>& pixels = image.at<Vec3b>(Point(x, y));
+
+            histRed.insert(histRed.begin() + pixels[0], pixels[0] + 1);
+            histGreen.insert(histGreen.begin() + pixels[0], pixels[0] + 1);
+            histBlue.insert(histBlue.begin() + pixels[0], pixels[0] + 1);
         }
-    Mat HistPlotR (500, 256, CV_8UC3, Scalar(0, 0, 0));
-    Mat HistPlotG (500, 256, CV_8UC3, Scalar(0, 0, 0));
-    Mat HistPlotB (500, 256, CV_8UC3, Scalar(0, 0, 0));
-    for (int i = 0; i < 256; i=i+2)
-    {
-        line(HistPlotR, Point(i, 500), Point(i, 500-histRed[i]), Scalar(0, 0, 255),1,8,0);
-        line(HistPlotG, Point(i, 500), Point(i, 500-histGreen[i]), Scalar(0, 255, 0),1,8,0);
-        line(HistPlotB, Point(i, 500), Point(i, 500-histBlue[i]), Scalar(255, 0, 0),1,8,0);
     }
-    namedWindow("Red Histogram");
-    namedWindow("Green Histogram");
-    namedWindow("Blue Histogram");
+
+    int sizeRed, sizeBlue, sizeGreen = 0;
+    for(int x = 0; x < 256; x++) {
+        if(histRed.at(x) < sizeRed) {
+            sizeRed = histRed.at(x);
+        }
+
+        if(histBlue.at(x) < sizeBlue) {
+            sizeBlue = histBlue.at(x);
+        }
+
+        if(histGreen.at(x) < sizeGreen) {
+            sizeGreen = histGreen.at(x);
+        }
+    }
+
+    Mat HistPlotR (sizeRed, 256, CV_8UC3, Scalar(0, 0, 0));
+    Mat HistPlotG (sizeBlue, 256, CV_8UC3, Scalar(0, 0, 0));
+    Mat HistPlotB (sizeGreen, 256, CV_8UC3, Scalar(0, 0, 0));
+    for (int i = 0; i < 256; i++) {
+        line(HistPlotR, Point(i, 500), Point(i, 500-histRed[i]  ), Scalar(0, 0, 255), 1, 8, 0);
+        line(HistPlotG, Point(i, 500), Point(i, 500-histGreen[i]), Scalar(0, 255, 0), 1, 8, 0);
+        line(HistPlotB, Point(i, 500), Point(i, 500-histBlue[i] ), Scalar(255, 0, 0), 1, 8, 0);
+    }
+
+    namedWindow("Red Histogram", cv::WINDOW_AUTOSIZE);
+    namedWindow("Green Histogram", cv::WINDOW_AUTOSIZE);
+    namedWindow("Blue Histogram", cv::WINDOW_AUTOSIZE);
     imshow("Red Histogram", HistPlotR);
     imshow("Green Histogram", HistPlotG);
     imshow("Blue Histogram", HistPlotB);
-    waitKey(0);
     return 0;
 }
 
@@ -237,15 +244,27 @@ Mat zoomIn(int zoomValue, Mat image) {
             Vec<unsigned char, 3>& oldImagePixel = image.at<Vec3b>(Point(x, y));       
             Vec<unsigned char, 3>& newImagePixel = newImage.at<Vec3b>(Point(x, y));
 
-            newImage.at<Vec3b>(Point(x*zoomValue    , y*zoomValue)) = oldImagePixel;
-            newImage.at<Vec3b>(Point(x*zoomValue +1 , y*zoomValue)) = oldImagePixel;
-            newImage.at<Vec3b>(Point(x*zoomValue    , y*zoomValue +1)) = oldImagePixel;
-            newImage.at<Vec3b>(Point(x*zoomValue +1 , y*zoomValue +1)) = oldImagePixel;
+            newImage.at<Vec3b>(Point(x * zoomValue   , y * zoomValue)) = oldImagePixel;
+            newImage.at<Vec3b>(Point(x * zoomValue +1, y * zoomValue)) = oldImagePixel;
+            newImage.at<Vec3b>(Point(x * zoomValue   , y * zoomValue +1)) = oldImagePixel;
+            newImage.at<Vec3b>(Point(x * zoomValue +1, y * zoomValue +1)) = oldImagePixel;
         }
     }
 
     return newImage;
 }
+
+Mat zoomOut(int zoomValue, Mat image) {
+    if (zoomValue <= 1) return image;
+    
+    double zoomOut = 1 / zoomValue;
+    std::cout << zoomOut;
+    // TODO ARRUMAR
+    Mat newImage(image.size().height, image.size().width, CV_8UC3, Scalar(0,0,0));
+    cv::resize(image, newImage, cv::Size(), 0.75, 0.75);
+    return newImage;
+}
+
 
 Mat somarImagem(Mat img1, Mat img2) {
     int height = (img1.size().height > img2.size().height) ? img1.size().height : img2.size().height;
@@ -299,27 +318,4 @@ Mat subtrairImagem(Mat imgMinuendo, Mat imgSubtraendo) {
     }
     
     return newImg;
-}
-
-void mouseHandler(int event, int x, int y, int flags, void* param)
-{
-    if(event == CV_EVENT_LBUTTONUP ) {
-        printf("Left button up\n");
-    }
-}
-
-int openWebcam() {
-    VideoCapture cap;
-    if(!cap.open(0))
-        return 0;
-    for(;;)
-    {
-          Mat frame;
-          cap >> frame;
-          frame = converterParaCinzaPonderado(frame);
-          if( frame.empty() ) break;
-          imshow("Webcam image", frame);
-        //   if( waitKey(30) >= 0 ) break;
-    }
-    return 0;
 }

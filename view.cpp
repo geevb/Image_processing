@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include <opencv2/opencv.hpp>
 
+cv::Mat xyz;
+
 void menuInicial() {
     std::cout <<"    ____  _       _ __        __   ____                         "      << std::endl;
     std::cout <<"   / __ \\(_)___ _(_) /_____ _/ /  /  _/___ ___  ____ _____ ____ "     << std::endl;
@@ -146,19 +148,15 @@ int perguntarValorAcrescimo() {
     return resp;
 }
 
-void onMouse(int event, int x, int y, int flags, void* param){
-    char text[100];
-    cv::Mat img2, img3;
-    cv::Mat img = param.image;
-    if (event == CV_EVENT_LBUTTONDOWN) {
-        cv::Vec3b p = img2.at<cv::Vec3b>(y,x);
-        sprintf(text, "R=%d, G=%d, B=%d", p[2], p[1], p[0]);
-    }
-    else
-        sprintf(text, "x=%d, y=%d", x, y);
+static void onMouse(int event, int x, int y, int flags, void* param)
+{
+    Mat &image = *((Mat*)param);
 
-    putText(img2, text, cv::Point(5,15), cv::FONT_HERSHEY_PLAIN, 1.0, CV_RGB(0,255,0));
-    imshow("image", img2);
+    if (event == EVENT_LBUTTONDOWN)
+    {
+        Vec<unsigned char, 3>& pixels = image.at<Vec3b>(Point(x,y));
+        std::cout << "\nB, G, R -> " << pixels << std::endl;
+    }
 }
 
 void apresentarImagem(cv::Mat image) {
@@ -178,7 +176,9 @@ int perguntarDesejaIniciarNovamente() {
 }
 
 
-
-void apresentarVideo(cv::Mat frame) {
+int apresentarVideo(cv::Mat frame) {
+    cv::namedWindow("Webcam image", cv::WINDOW_AUTOSIZE);
     cv::imshow("Webcam image", frame);
+    cvSetMouseCallback("Webcam image", onMouse, &frame);
+    return cv::waitKey(30);
 }

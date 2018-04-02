@@ -33,15 +33,16 @@ std::string verificarTipoExibicao() {
 int executarComWebcam() {
     int filtro = perguntarQualFiltro();
     valores vals = pegarValoresDoFiltro(filtro);
-    VideoCapture cap;
+
+    cv::VideoCapture cap;
         if(!cap.open(0)) return 0;
         for(;;) {
             Mat frame;
             cap >> frame;
             frame = aplicarFiltroNaImagem(filtro, frame, vals);
             if( frame.empty() ) break;
-            apresentarVideo(frame);
-            if( waitKey(1) >= 0 ) break;
+            
+            if( apresentarVideo(frame) >= 0) break;
         }
     return 0;
 }
@@ -104,6 +105,10 @@ valores pegarValoresDoFiltro(int filtro) {
             vals.zoom = perguntarValorZoom();
             break;
         }
+        case 11: {
+            vals.zoom = perguntarValorZoom();
+            break;
+        }
         case 8: {
             std::string nomeImagem = perguntarSegundaImagem();
             Mat secondImage = verificarImagemEscolhida(nomeImagem);
@@ -147,7 +152,6 @@ cv::Mat aplicarFiltroNaImagem(int filtro, cv::Mat imagem, valores vals) {
             break;
         }
         case 6:{
-            //TODO CORRIGIR BUG
             filteredImage = incrementarCanaisDeDor(vals.cor, vals.tipo, vals.valor, imagem);
             break;
         }
@@ -165,7 +169,11 @@ cv::Mat aplicarFiltroNaImagem(int filtro, cv::Mat imagem, valores vals) {
         }
         case 10: {
             filteredImage = imagem;
-            showHistogram(imagem);
+            presentHistogram(imagem);
+            break;
+        }
+        case 11: {
+            filteredImage = zoomOut(vals.zoom, imagem);
             break;
         }
         default:
