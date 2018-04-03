@@ -189,6 +189,14 @@ cv::Mat aplicarFiltroNaImagem(int filtro, cv::Mat imagem, valores vals) {
             showHistogram(imagem);
             break;
         }
+        case 13: {
+            filteredImage = dilatar(imagem, 150);
+            break;
+        }
+        case 14: {
+            filteredImage = erodir(imagem, 150);
+            break;
+        }
         default:
             std::cout << "default\n";
             break;

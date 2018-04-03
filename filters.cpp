@@ -34,6 +34,8 @@ Mat converterParaCinzaMedia(Mat image) {
     return newImage;
 }
 
+
+
 Mat converterParaCinzaPonderado(Mat image) {
     Mat newImage(image.size().height, image.size().width, CV_8UC3, Scalar(0,0,0));
     for(int y = 0; y < newImage.size().height; y++) {
@@ -42,6 +44,64 @@ Mat converterParaCinzaPonderado(Mat image) {
             Vec<unsigned char, 3>& pixel = newImage.at<Vec3b>(Point(x, y));
 
             pixel[0] = pixel[1] = pixel[2] = oldImagePixel[0] * 0.114 + oldImagePixel[1] * 0.587 + oldImagePixel[2] * 0.229;
+        } 
+    }
+
+    return newImage;
+}
+
+Mat dilatar(Mat image, int limiar) {
+    Mat newImage(image.rows, image.cols, CV_8UC3, Scalar(0,0,0));
+    Mat oldImage = converterParaCinzaPonderado(image);
+    threshold(oldImage, oldImage, limiar, 255, 0);
+    int height = oldImage.size().height - 1;
+    int width = newImage.size().width -1;
+    for(int y = 1; y < height; y++) {
+        for(int x = 1; x < width; x++) {
+            Vec<unsigned char, 3> oldImagePixel = oldImage.at<Vec3b>(Point(x, y));  
+            Vec<unsigned char, 3>& pixel = newImage.at<Vec3b>(Point(x, y));
+
+            if(oldImagePixel[0] == 255 && oldImagePixel[1] == 255 && oldImagePixel[2] == 255){
+                for(int z = 0; z < 3; z++) {
+                    newImage.at<Vec3b>(Point(x -1, y -1))[z] = 255;
+                    newImage.at<Vec3b>(Point(x, y -1))[z] = 255;
+                    newImage.at<Vec3b>(Point(x +1, y -1))[z] = 255;
+                    newImage.at<Vec3b>(Point(x -1, y))[z] = 255;
+                    newImage.at<Vec3b>(Point(x +1, y))[z] = 255;
+                    newImage.at<Vec3b>(Point(x -1, y +1))[z] = 255;
+                    newImage.at<Vec3b>(Point(x, y +1))[z] = 255;
+                    newImage.at<Vec3b>(Point(x +1, y+1))[z] = 255;
+                }
+            }
+        } 
+    }
+
+    return newImage;
+}
+
+bool deveErodir(int x, int y, Mat oldImage) {
+    return  oldImage.at<Vec3b>(Point(x -1, y -1))[0] == 255 && // POS: 0,0
+            oldImage.at<Vec3b>(Point(x -1, y))[0] == 255 &&    // POS: 0,1
+            oldImage.at<Vec3b>(Point(x -1, y +1))[0] == 255 && // POS: 0,2
+            oldImage.at<Vec3b>(Point(x, y -1))[0] == 255 &&    // POS: 1,0
+            oldImage.at<Vec3b>(Point(x, y +1))[0] == 255 &&    // POS: 1,2
+            oldImage.at<Vec3b>(Point(x +1, y -1))[0] == 255 && // POS: 2,0
+            oldImage.at<Vec3b>(Point(x +1, y))[0] == 255 &&    // POS: 2,1
+            oldImage.at<Vec3b>(Point(x +1, y +1))[0] == 255;   // POS: 2,2
+}
+Mat erodir(Mat image, int limiar) {
+    Mat newImage(image.rows, image.cols, CV_8UC3, Scalar(0,0,0));
+    Mat oldImage = converterParaCinzaPonderado(image);
+    threshold(oldImage, oldImage, limiar, 255, 0);
+    int height = oldImage.size().height - 1;
+    int width = newImage.size().width -1;
+    for(int y = 1; y < height; y++) {
+        for(int x = 1; x < width; x++) {
+            Vec<unsigned char, 3>& pixel = newImage.at<Vec3b>(Point(x, y));
+
+            if(deveErodir(x, y, oldImage)) {
+                pixel[0] = pixel[1] = pixel[2] = 255;
+            }
         } 
     }
 
@@ -305,6 +365,8 @@ Mat somarImagem(Mat img1, Mat img2) {
 
     return newImg;
 }
+
+
 
 Mat somarImagemPonderada(Mat img1, Mat img2, int percentImg1, int percentImg2) {
     int height = (img1.size().height < img2.size().height) ? img1.size().height : img2.size().height;
