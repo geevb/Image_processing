@@ -130,6 +130,14 @@ valores pegarValoresDoFiltro(int filtro) {
             vals.segundaImagem = secondImage;
             break;
         }
+        case 13: {
+            vals.limiar = perguntarQualValorLimiar();
+            break;
+        }
+        case 14: {
+            vals.limiar = perguntarQualValorLimiar();
+            break;
+        }
         default:
             break;
     }
@@ -190,11 +198,11 @@ cv::Mat aplicarFiltroNaImagem(int filtro, cv::Mat imagem, valores vals) {
             break;
         }
         case 13: {
-            filteredImage = dilatar(imagem, 150);
+            filteredImage = dilatar(imagem, vals.limiar);
             break;
         }
         case 14: {
-            filteredImage = erodir(imagem, 150);
+            filteredImage = erodir(imagem, vals.limiar);
             break;
         }
         default:

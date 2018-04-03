@@ -79,7 +79,7 @@ Mat dilatar(Mat image, int limiar) {
     return newImage;
 }
 
-bool deveErodir(int x, int y, Mat oldImage) {
+bool deveErodir(int x, int y, Mat &oldImage) {
     return  oldImage.at<Vec3b>(Point(x -1, y -1))[0] == 255 && // POS: 0,0
             oldImage.at<Vec3b>(Point(x -1, y))[0] == 255 &&    // POS: 0,1
             oldImage.at<Vec3b>(Point(x -1, y +1))[0] == 255 && // POS: 0,2
@@ -89,6 +89,7 @@ bool deveErodir(int x, int y, Mat oldImage) {
             oldImage.at<Vec3b>(Point(x +1, y))[0] == 255 &&    // POS: 2,1
             oldImage.at<Vec3b>(Point(x +1, y +1))[0] == 255;   // POS: 2,2
 }
+
 Mat erodir(Mat image, int limiar) {
     Mat newImage(image.rows, image.cols, CV_8UC3, Scalar(0,0,0));
     Mat oldImage = converterParaCinzaPonderado(image);

@@ -67,6 +67,7 @@ int perguntarQualFiltro() {
     std::cout << "\nPor favor, escolha um dos filtros disponíveis:" << std::endl;
     std::cout << " 1) Cinza Média \n 2) Cinza Ponderado \n 3) Cor Invertida \n 4) Limiarizacao \n 5) Canal de cor isolado";
     std::cout << "\n 6) Incrementar Canal de cor \n 7) Zoom In \n 8) Zoom Out \n 9) Somar imagens \n 10) Somar imagens ponderada \n 11) Subtrair imagem \n 12) Histograma";
+    std::cout << "\n 13) Dilatação \n 14) Erosão";
     std::cout << "\nR: ";
     std::cin >> resp;
     
