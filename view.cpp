@@ -66,7 +66,7 @@ int perguntarQualFiltro() {
     int resp;
     std::cout << "\nPor favor, escolha um dos filtros disponíveis:" << std::endl;
     std::cout << " 1) Cinza Média \n 2) Cinza Ponderado \n 3) Cor Invertida \n 4) Limiarizacao \n 5) Canal de cor isolado";
-    std::cout << "\n 6) Incrementar Canal de cor \n 7) Zoom In \n 8) Somar imagem \n 9) Subtrair imagem \n10) Histograma";
+    std::cout << "\n 6) Incrementar Canal de cor \n 7) Zoom In \n 8) Zoom Out \n 9) Somar imagens \n 10) Somar imagens ponderada \n 11) Subtrair imagem \n 12) Histograma";
     std::cout << "\nR: ";
     std::cin >> resp;
     
@@ -80,6 +80,22 @@ int perguntarQualFiltro() {
     }
     
     return resp;
+}
+
+int perguntarValoresSomaPonderadaPrimeiraImagem() {
+    int valor;
+    std::cout << "\nPor favor insira o valor(em porcentagem) da primeira imagem \nR: " << std::endl;
+    std::cin >> valor;
+
+    return (valor > 0) ? valor : 100;
+}
+
+int perguntarValoresSomaPonderadaSegundaImagem() {
+    int valor;
+    std::cout << "\nPor favor insira o valor(em porcentagem) da segunda imagem \nR: " << std::endl;
+    std::cin >> valor;
+
+    return (valor > 0) ? valor : 100;
 }
 
 std::string perguntarQualCor() {

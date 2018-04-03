@@ -258,23 +258,35 @@ Mat zoomOut(int zoomValue, Mat image) {
     if (zoomValue <= 1) return image;
     
     double zoomOut = 1 / zoomValue;
-    std::cout << zoomOut;
-    // TODO ARRUMAR
-    Mat newImage(image.size().height, image.size().width, CV_8UC3, Scalar(0,0,0));
-    cv::resize(image, newImage, cv::Size(), 0.75, 0.75);
-    return newImage;
+    
+    Mat newImage(image.size().height * zoomValue, image.size().width * zoomValue, CV_8UC3, Scalar(0,0,0));
+    for(int y = 0; y < image.rows; y++) {
+        for(int x = 0; x < image.cols; x++) {
+            Vec<unsigned char, 3>& oldImagePixel = image.at<Vec3b>(Point(x, y));       
+            Vec<unsigned char, 3>& newImagePixel = newImage.at<Vec3b>(Point(x, y));
+
+            newImage.at<Vec3b>(Point(x * zoomValue   , y * zoomValue)) = oldImagePixel;
+            newImage.at<Vec3b>(Point(x * zoomValue +1, y * zoomValue)) = oldImagePixel;
+            newImage.at<Vec3b>(Point(x * zoomValue   , y * zoomValue +1)) = oldImagePixel;
+            newImage.at<Vec3b>(Point(x * zoomValue +1, y * zoomValue +1)) = oldImagePixel;
+        }
+    }
+    // TODO corrigir
+    Mat resizedImage(image.size().height, image.size().width, CV_8UC3, Scalar(0,0,0));
+    cv::resize(image, resizedImage, cv::Size(), 0.75, 0.75);
+    return resizedImage;
 }
 
 
 Mat somarImagem(Mat img1, Mat img2) {
-    int height = (img1.size().height > img2.size().height) ? img1.size().height : img2.size().height;
-    int width  = (img1.size().width > img2.size().width) ? img1.size().width : img2.size().width;
+    int height = (img1.size().height < img2.size().height) ? img1.size().height : img2.size().height;
+    int width  = (img1.size().width < img2.size().width) ? img1.size().width : img2.size().width;
     Mat newImg(height, width, CV_8UC3, Scalar(255, 255, 255));
     for(int y = 0; y < newImg.size().height; y++) {
         for(int x = 0; x < newImg.size().width; x++) {
             Vec<unsigned char, 3>& newImgPixel = newImg.at<Vec3b>(Point(x, y));
-            Vec<unsigned char, 3>& pxlImg1 = img1.at<Vec3b>(Point(x, y));
-            Vec<unsigned char, 3>& pxlImg2 = img2.at<Vec3b>(Point(x, y));
+            Vec<unsigned char, 3> pxlImg1 = img1.at<Vec3b>(Point(x, y));
+            Vec<unsigned char, 3> pxlImg2 = img2.at<Vec3b>(Point(x, y));
             if(x > img1.size().width || y > img1.size().height ||
                x > img2.size().width || y > img2.size().height) 
             {
@@ -294,8 +306,44 @@ Mat somarImagem(Mat img1, Mat img2) {
     return newImg;
 }
 
+Mat somarImagemPonderada(Mat img1, Mat img2, int percentImg1, int percentImg2) {
+    int height = (img1.size().height < img2.size().height) ? img1.size().height : img2.size().height;
+    int width  = (img1.size().width < img2.size().width) ? img1.size().width : img2.size().width;
+    Mat newImg(height, width, CV_8UC3, Scalar(255, 255, 255));
+
+    double porcentagem1 = (double) percentImg1 / 100;
+    double porcentagem2 = (double) percentImg2 / 100;
+    for(int y = 0; y < newImg.size().height; y++) {
+        for(int x = 0; x < newImg.size().width; x++) {
+            Vec<unsigned char, 3>& newImgPixel = newImg.at<Vec3b>(Point(x, y));
+            Vec<unsigned char, 3>& pxlImg1 = img1.at<Vec3b>(Point(x, y));
+            Vec<unsigned char, 3>& pxlImg2 = img2.at<Vec3b>(Point(x, y));
+            if(x > img1.size().width || y > img1.size().height ||
+               x > img2.size().width || y > img2.size().height) 
+            {
+                newImgPixel[0] = newImgPixel[1] = newImgPixel[2] = 255;
+                continue;
+            }
+
+
+            int add0 = round((double) pxlImg1[0] * porcentagem1 + (double) pxlImg2[0] * porcentagem2);
+            int add1 = round((double) pxlImg1[1] * porcentagem1 + (double) pxlImg2[1] * porcentagem2);
+            int add2 = round((double) pxlImg1[2] * porcentagem1 + (double) pxlImg2[2] * porcentagem2);
+
+            newImgPixel[0] = (add0 > 255) ? 255 : add0;
+            newImgPixel[1] = (add1 > 255) ? 255 : add1;
+            newImgPixel[2] = (add2 > 255) ? 255 : add2;
+        }
+    }
+
+    return newImg;
+}
+
+
 Mat subtrairImagem(Mat imgMinuendo, Mat imgSubtraendo) {
-    Mat newImg(imgMinuendo.size().height, imgMinuendo.size().width, CV_8UC3, Scalar(0,0,0));
+    int height = (imgMinuendo.size().height < imgSubtraendo.size().height) ? imgMinuendo.size().height : imgSubtraendo.size().height;
+    int width  = (imgMinuendo.size().width < imgSubtraendo.size().width) ? imgMinuendo.size().width : imgSubtraendo.size().width;
+    Mat newImg(height, width, CV_8UC3, Scalar(0,0,0));
     for(int y = 0; y < newImg.size().height; y++) {
         for(int x = 0; x < newImg.size().width; x++) {
             Vec<unsigned char, 3>& newImgPixel = newImg.at<Vec3b>(Point(x, y));

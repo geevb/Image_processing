@@ -15,6 +15,7 @@ struct valores {
     int limiar;
     int tipo;
     int valor;
+    int valor2;
 };
 
 std::string verificarTipoExibicao();
@@ -105,17 +106,25 @@ valores pegarValoresDoFiltro(int filtro) {
             vals.zoom = perguntarValorZoom();
             break;
         }
-        case 11: {
+        case 8: {
             vals.zoom = perguntarValorZoom();
             break;
         }
-        case 8: {
+        case 9: {
             std::string nomeImagem = perguntarSegundaImagem();
             Mat secondImage = verificarImagemEscolhida(nomeImagem);
             vals.segundaImagem = secondImage;
             break;
         }
-        case 9: {
+        case 10: {
+            std::string nomeImagem = perguntarSegundaImagem();
+            Mat secondImage = verificarImagemEscolhida(nomeImagem);
+            vals.valor = perguntarValoresSomaPonderadaPrimeiraImagem();
+            vals.valor2 = perguntarValoresSomaPonderadaSegundaImagem();
+            vals.segundaImagem = secondImage;
+            break;
+        }
+        case 11: {
             std::string nomeImagem = perguntarSegundaImagem();
             Mat secondImage = verificarImagemEscolhida(nomeImagem);
             vals.segundaImagem = secondImage;
@@ -160,20 +169,24 @@ cv::Mat aplicarFiltroNaImagem(int filtro, cv::Mat imagem, valores vals) {
             break;
         }
         case 8: {
-            filteredImage = somarImagem(imagem, vals.segundaImagem);
+            filteredImage = zoomOut(vals.zoom, imagem);
             break;
         }
         case 9: {
-            filteredImage = subtrairImagem(imagem, vals.segundaImagem);
+            filteredImage = somarImagem(imagem, vals.segundaImagem);
             break;
         }
         case 10: {
-            filteredImage = imagem;
-            presentHistogram(imagem);
+            filteredImage = somarImagemPonderada(imagem, vals.segundaImagem, vals.valor, vals.valor2);
             break;
         }
         case 11: {
-            filteredImage = zoomOut(vals.zoom, imagem);
+            filteredImage = subtrairImagem(imagem, vals.segundaImagem);
+            break;
+        }
+        case 12: {
+            filteredImage = imagem;
+            showHistogram(imagem);
             break;
         }
         default:
