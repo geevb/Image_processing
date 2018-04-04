@@ -4,9 +4,7 @@
 #include <stdlib.h>
 #include <opencv2/opencv.hpp>
 
-cv::Mat xyz;
-
-void menuInicial() {
+void apresentacao() {
     std::cout <<"    ____  _       _ __        __   ____                         "      << std::endl;
     std::cout <<"   / __ \\(_)___ _(_) /_____ _/ /  /  _/___ ___  ____ _____ ____ "     << std::endl;
     std::cout <<"  / / / / / __ `/ / __/ __ `/ /   / // __ `__ \\/ __ `/ __ `/ _ \\"    << std::endl;
@@ -24,11 +22,11 @@ void menuInicial() {
     std::cout <<"                   \\=======`-..-\'======/"                            << std::endl;
     std::cout <<"                    `-----------------\' "                             << std::endl;
     std::cout <<"       ____                                 _            "             << std::endl;
-    std::cout <<"       / __ \\_________  ________  __________(_)___  ____ _"            << std::endl;
-    std::cout <<"      / /_/ / ___/ __ \\/ ___/ _ \\/ ___/ ___/ / __ \\/ __ `/"          << std::endl;
-    std::cout <<"     / ____/ /  / /_/ / /__/  __(__  |__  ) / / / / /_/ / "             << std::endl;
-    std::cout <<"    /_/   /_/   \\____/\\___/\\___/____/____/_/_/ /_/\\__, /  "         << std::endl;
-    std::cout <<"                                                /____/   "             << std::endl;
+    std::cout <<"       / __ \\_________  ________  __________(_)___  ____ _"           << std::endl;
+    std::cout <<"      / /_/ / ___/ __ \\/ ___/ _ \\/ ___/ ___/ / __ \\/ __ `/"         << std::endl;
+    std::cout <<"     / ____/ /  / /_/ / /__/  __(__  |__  ) / / / / /_/ / "            << std::endl;
+    std::cout <<"    /_/   /_/   \\____/\\___/\\___/____/____/_/_/ /_/\\__, /  "        << std::endl;
+    std::cout <<"                                                 /____/   "            << std::endl;
 }
 
 void mostrarImagens() {
@@ -65,14 +63,14 @@ std::string perguntarQualImagem() {
 int perguntarQualFiltro() {
     int resp;
     std::cout << "\nPor favor, escolha um dos filtros disponíveis:" << std::endl;
-    std::cout << " 1) Cinza Média \n 2) Cinza Ponderado \n 3) Cor Invertida \n 4) Limiarizacao \n 5) Canal de cor isolado";
-    std::cout << "\n 6) Incrementar Canal de cor \n 7) Zoom In \n 8) Zoom Out \n 9) Somar imagens \n 10) Somar imagens ponderada \n 11) Subtrair imagem \n 12) Histograma";
-    std::cout << "\n 13) Dilatação \n 14) Erosão";
+    std::cout << "  1) Cinza Média \n  2) Cinza Ponderado \n  3) Cor Invertida \n  4) Limiarizacao \n  5) Canal de cor isolado";
+    std::cout << "\n  6) Incrementar Canal de cor \n  7) Zoom In \n  8) Zoom Out \n  9) Somar imagens \n 10) Somar imagens ponderada \n 11) Subtrair imagem \n 12) Histograma";
+    std::cout << "\n 13) Dilatação \n 14) Erosão \n 15) Abertura \n 16) Fechamento";
     std::cout << "\nR: ";
     std::cin >> resp;
     
     while(true) {
-        if(resp >= 1) {
+        if(resp >= 1 && resp <= 17) {
             break;
         }
         

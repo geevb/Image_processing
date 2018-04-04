@@ -46,10 +46,7 @@ Mat dilatar(Mat& image, int limiar) {
     threshold(oldImage, oldImage, limiar, 255, 0);
     int height = oldImage.rows - 1;
     int width = newImage.cols -1;
-    Vec3b* pixelOldImage;
-    Vec3b* pixelNewImage;
     for(int y = 1; y < height; y++) {
-        pixelNewImage = newImage.ptr<Vec3b>(y);
         for(int x = 1; x < width; x++) {
             if(oldImage.ptr<Vec3b>(y)[x][0]){
                 for(int z = 0; z < 3; z++) {
@@ -86,10 +83,8 @@ Mat erodir(Mat& image, int limiar) {
     threshold(oldImage, oldImage, limiar, 255, 0);
     int height = oldImage.rows - 1;
     int width = oldImage.cols -1;
-    Vec3b* pixelOldImage;
     Vec3b* pixelNewImage;
     for(int y = 1; y < height; y++) {
-        pixelOldImage = oldImage.ptr<Vec3b>(y);
         pixelNewImage = newImage.ptr<Vec3b>(y);
         for(int x = 1; x < width; x++) {
             if(deveErodir(x, y, oldImage)) {
@@ -99,6 +94,16 @@ Mat erodir(Mat& image, int limiar) {
     }
 
     return newImage;
+}
+
+Mat abertura(Mat& image, int limiar) {
+    Mat erodida = erodir(image, limiar);
+    return dilatar(erodida, limiar);
+}
+
+Mat fechamento(Mat& image, int limiar) {
+    Mat dilatada = dilatar(image, limiar);
+    return erodir(dilatada, limiar);
 }
 
 int presentHistogram(Mat& image) {

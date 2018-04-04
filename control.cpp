@@ -36,15 +36,15 @@ int executarComWebcam() {
     valores vals = pegarValoresDoFiltro(filtro);
 
     cv::VideoCapture cap;
-        if(!cap.open(0)) return 0;
-        for(;;) {
-            Mat frame;
-            cap >> frame;
-            frame = aplicarFiltroNaImagem(filtro, frame, vals);
-            if( frame.empty() ) break;
-            
-            if( apresentarVideo(frame) >= 0) break;
-        }
+    if(!cap.open(0)) return 0;
+    Mat frame;
+    for(;;) {            
+        cap >> frame;
+        if( frame.empty() ) break;
+
+        frame = aplicarFiltroNaImagem(filtro, frame, vals);            
+        if( apresentarVideo(frame) >= 0) break;
+    }
     return 0;
 }
 
@@ -87,7 +87,6 @@ void executarTipo(std::string tipo) {
 }
 
 valores pegarValoresDoFiltro(int filtro) {
-
     valores vals;
 
     switch(filtro) {
@@ -139,6 +138,14 @@ valores pegarValoresDoFiltro(int filtro) {
             break;
         }
         case 14: {
+            vals.limiar = perguntarQualValorLimiar();
+            break;
+        }
+        case 15: {
+            vals.limiar = perguntarQualValorLimiar();
+            break;
+        }
+        case 16: {
             vals.limiar = perguntarQualValorLimiar();
             break;
         }
@@ -209,8 +216,16 @@ cv::Mat aplicarFiltroNaImagem(int filtro, cv::Mat& imagem, valores vals) {
             filteredImage = erodir(imagem, vals.limiar);
             break;
         }
+        case 15: {
+            filteredImage = abertura(imagem, vals.limiar);
+            break;
+        }
+        case 16: {
+            filteredImage = fechamento(imagem, vals.limiar);
+            break;
+        }
         default:
-            std::cout << "default\n";
+            std::cout << "Opção inválida\n";
             break;
     }
 

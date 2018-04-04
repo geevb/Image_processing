@@ -2,10 +2,8 @@
 
 int main() {
 
-    // while(true) {
-        fluxo();
-        // if (perguntarDesejaIniciarNovamente() != 1) break;
-    // }
+    apresentacao();
+    fluxo();
     return 0;
 }
 
