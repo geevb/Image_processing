@@ -107,47 +107,32 @@ Mat fechamento(Mat& image, int limiar) {
 }
 
 int presentHistogram(Mat& image) {
-    std::vector<int> histRed(256, 0);
-    std::vector<int> histGreen(256, 0);
-    std::vector<int> histBlue(256, 0);
-    
-    for (int y = 0; y < image.rows; y++) {
-        for (int x = 0; x < image.cols; x++) {
-            Vec<unsigned char, 3>& pixels = image.at<Vec3b>(Point(x, y));
-
-            histRed.insert(histRed.begin() + pixels[0], pixels[0] + 1);
-            histGreen.insert(histGreen.begin() + pixels[0], pixels[0] + 1);
-            histBlue.insert(histBlue.begin() + pixels[0], pixels[0] + 1);
+    int HistR[257] = {0};
+    int HistG[257] = {0};
+    int HistB[257] = {0};
+    for (int i = 0; i < image.rows; i++)
+        for (int j = 0; j < image.cols; j++)
+        {
+            Vec3b intensity = image.at<Vec3b>(Point(j, i));
+            int Red = intensity.val[0];
+            int Green = intensity.val[1];
+            int Blue = intensity.val[2];
+            HistR[Red] += 1;
+            HistB[Blue] += 1;
+            HistG[Green] += 1;
         }
+    Mat HistPlotR (500, 256, CV_8UC3, Scalar(0, 0, 0));
+    Mat HistPlotG (500, 256, CV_8UC3, Scalar(0, 0, 0));
+    Mat HistPlotB (500, 256, CV_8UC3, Scalar(0, 0, 0));
+    for (int i = 0; i < 256; i=i+2)
+    {
+        line(HistPlotR, Point(i, 500), Point(i, 500-HistR[i]), Scalar(0, 0, 255),1,8,0);
+        line(HistPlotG, Point(i, 500), Point(i, 500-HistG[i]), Scalar(0, 255, 0),1,8,0);
+        line(HistPlotB, Point(i, 500), Point(i, 500-HistB[i]), Scalar(255, 0, 0),1,8,0);
     }
-
-    int sizeRed, sizeBlue, sizeGreen = 0;
-    for(int x = 0; x < 256; x++) {
-        if(histRed.at(x) < sizeRed) {
-            sizeRed = histRed.at(x);
-        }
-
-        if(histBlue.at(x) < sizeBlue) {
-            sizeBlue = histBlue.at(x);
-        }
-
-        if(histGreen.at(x) < sizeGreen) {
-            sizeGreen = histGreen.at(x);
-        }
-    }
-
-    Mat HistPlotR (sizeRed, 256, CV_8UC3, Scalar(0, 0, 0));
-    Mat HistPlotG (sizeBlue, 256, CV_8UC3, Scalar(0, 0, 0));
-    Mat HistPlotB (sizeGreen, 256, CV_8UC3, Scalar(0, 0, 0));
-    for (int i = 0; i < 256; i++) {
-        line(HistPlotR, Point(i, 500), Point(i, 500-histRed[i]  ), Scalar(0, 0, 255), 1, 8, 0);
-        line(HistPlotG, Point(i, 500), Point(i, 500-histGreen[i]), Scalar(0, 255, 0), 1, 8, 0);
-        line(HistPlotB, Point(i, 500), Point(i, 500-histBlue[i] ), Scalar(255, 0, 0), 1, 8, 0);
-    }
-
-    namedWindow("Red Histogram", cv::WINDOW_AUTOSIZE);
-    namedWindow("Green Histogram", cv::WINDOW_AUTOSIZE);
-    namedWindow("Blue Histogram", cv::WINDOW_AUTOSIZE);
+    namedWindow("Red Histogram", cv::WINDOW_AUTOSIZE );
+    namedWindow("Green Histogram", cv::WINDOW_AUTOSIZE );
+    namedWindow("Blue Histogram", cv::WINDOW_AUTOSIZE );
     imshow("Red Histogram", HistPlotR);
     imshow("Green Histogram", HistPlotG);
     imshow("Blue Histogram", HistPlotB);
