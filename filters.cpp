@@ -195,7 +195,6 @@ int showHistogram(Mat& image) {
 
   namedWindow("Histogram", CV_WINDOW_AUTOSIZE );
   imshow("Histogram", histImage );
-
   return 0;
 }
 

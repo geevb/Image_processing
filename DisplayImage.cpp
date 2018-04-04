@@ -3,7 +3,11 @@
 int main() {
 
     apresentacao();
-    fluxo();
+    do {
+        fluxo();
+        destroyAllWindows();
+    } 
+    while(perguntarDesejaIniciarNovamente());
     return 0;
 }
 

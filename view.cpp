@@ -165,29 +165,29 @@ int perguntarValorAcrescimo() {
 
 static void onMouse(int event, int x, int y, int flags, void* param)
 {
-    Mat &image = *((Mat*)param);
+    cv::Mat &image = *((cv::Mat*)param);
 
-    if (event == EVENT_LBUTTONDOWN)
+    if (event == cv::EVENT_LBUTTONDOWN)
     {
-        Vec<unsigned char, 3>& pixels = image.at<Vec3b>(Point(x,y));
+        cv::Vec<unsigned char, 3>& pixels = image.at<cv::Vec3b>(cv::Point(x,y));
         std::cout << "\nB, G, R -> " << pixels << std::endl;
     }
 }
 
 void apresentarImagem(cv::Mat image) {
-
     cv::namedWindow("Display Image", cv::WINDOW_AUTOSIZE );
     cv::imshow("Display Image", image);
     cvSetMouseCallback("Display Image", onMouse, &image);
     cv::waitKey(0);
 }
 
-int perguntarDesejaIniciarNovamente() {
-    int resp;
-    std::cout << "Deseja iniciar novamente? \n1) SIM\n2) NAO \nR: ";
+
+bool perguntarDesejaIniciarNovamente() {
+    std::string resp;
+    std::cout << "\nDeseja iniciar novamente? \n1) Sim\n2) Não \nR: ";
     std::cin >> resp;
 
-    return resp;
+    return (resp.compare("1") == 0);
 }
 
 
