@@ -6,12 +6,12 @@
 #include <fstream>
 using namespace cv;
 
-Mat converterParaCinzaMedia(Mat image) {
+Mat converterParaCinzaMedia(Mat& image) {
     Mat newImage(image.rows, image.cols, CV_8UC3, Scalar(0,0,0));
     Vec3b* ptrPixelNew;
     Vec3b* ptrPixelOld;
-    int height = newImage.size().height;
-    int width = newImage.size().width;
+    int height = newImage.rows;
+    int width = newImage.cols;
     for(int y = 0; y < height; y++) {
         ptrPixelNew = newImage.ptr<Vec3b>(y);
         ptrPixelOld = image.ptr<Vec3b>(y);
@@ -23,14 +23,12 @@ Mat converterParaCinzaMedia(Mat image) {
     return newImage;
 }
 
-
-
-Mat converterParaCinzaPonderado(Mat image) {
-    Mat newImage(image.size().height, image.size().width, CV_8UC3, Scalar(0,0,0));
+Mat converterParaCinzaPonderado(Mat& image) {
+    Mat newImage(image.rows, image.cols, CV_8UC3, Scalar(0,0,0));
     Vec3b* ptrPixelNew;
     Vec3b* ptrPixelOld;
-    int height = newImage.size().height;
-    int width = newImage.size().width;
+    int height = newImage.rows;
+    int width = newImage.cols;
     for(int y = 0; y < height; y++) {
         ptrPixelNew = newImage.ptr<Vec3b>(y);
         ptrPixelOld = image.ptr<Vec3b>(y);
@@ -42,27 +40,27 @@ Mat converterParaCinzaPonderado(Mat image) {
     return newImage;
 }
 
-Mat dilatar(Mat image, int limiar) {
+Mat dilatar(Mat& image, int limiar) {
     Mat newImage(image.rows, image.cols, CV_8UC3, Scalar(0,0,0));
     Mat oldImage = converterParaCinzaPonderado(image);
     threshold(oldImage, oldImage, limiar, 255, 0);
-    int height = oldImage.size().height - 1;
-    int width = newImage.size().width -1;
+    int height = oldImage.rows - 1;
+    int width = newImage.cols -1;
+    Vec3b* pixelOldImage;
+    Vec3b* pixelNewImage;
     for(int y = 1; y < height; y++) {
+        pixelNewImage = newImage.ptr<Vec3b>(y);
         for(int x = 1; x < width; x++) {
-            Vec<unsigned char, 3> oldImagePixel = oldImage.at<Vec3b>(Point(x, y));  
-            Vec<unsigned char, 3>& pixel = newImage.at<Vec3b>(Point(x, y));
-
-            if(oldImagePixel[0] == 255 && oldImagePixel[1] == 255 && oldImagePixel[2] == 255){
+            if(oldImage.ptr<Vec3b>(y)[x][0]){
                 for(int z = 0; z < 3; z++) {
-                    newImage.at<Vec3b>(Point(x -1, y -1))[z] = 255;
-                    newImage.at<Vec3b>(Point(x, y -1))[z] = 255;
-                    newImage.at<Vec3b>(Point(x +1, y -1))[z] = 255;
-                    newImage.at<Vec3b>(Point(x -1, y))[z] = 255;
-                    newImage.at<Vec3b>(Point(x +1, y))[z] = 255;
-                    newImage.at<Vec3b>(Point(x -1, y +1))[z] = 255;
-                    newImage.at<Vec3b>(Point(x, y +1))[z] = 255;
-                    newImage.at<Vec3b>(Point(x +1, y+1))[z] = 255;
+                    newImage.ptr<Vec3b>(y -1)[x -1][z] = 255;
+                    newImage.ptr<Vec3b>(y -1)[x][z] = 255;
+                    newImage.ptr<Vec3b>(y -1)[x +1][z] = 255;
+                    newImage.ptr<Vec3b>(y)[x -1][z] = 255;
+                    newImage.ptr<Vec3b>(y)[x +1][z] = 255;
+                    newImage.ptr<Vec3b>(y +1)[x -1][z] = 255;
+                    newImage.ptr<Vec3b>(y +1)[x][z] = 255;
+                    newImage.ptr<Vec3b>(y +1)[x +1][z] = 255;
                 }
             }
         } 
@@ -71,43 +69,31 @@ Mat dilatar(Mat image, int limiar) {
     return newImage;
 }
 
-bool deveErodir(int x, int y, Mat &oldImage) {
-    return  oldImage.at<Vec3b>(Point(x -1, y -1))[0] == 255 && // POS: 0,0
-            oldImage.at<Vec3b>(Point(x -1, y))[0] == 255 &&    // POS: 0,1
-            oldImage.at<Vec3b>(Point(x -1, y +1))[0] == 255 && // POS: 0,2
-            oldImage.at<Vec3b>(Point(x, y -1))[0] == 255 &&    // POS: 1,0
-            oldImage.at<Vec3b>(Point(x, y +1))[0] == 255 &&    // POS: 1,2
-            oldImage.at<Vec3b>(Point(x +1, y -1))[0] == 255 && // POS: 2,0
-            oldImage.at<Vec3b>(Point(x +1, y))[0] == 255 &&    // POS: 2,1
-            oldImage.at<Vec3b>(Point(x +1, y +1))[0] == 255;   // POS: 2,2
+bool deveErodir(int x, int y, Mat& oldImage) {
+    return  oldImage.ptr<Vec3b>(y -1)[x -1][0] == 255 &&    // POS: 0,0
+            oldImage.ptr<Vec3b>(y)[x -1][0] == 255    &&    // POS: 0,1
+            oldImage.ptr<Vec3b>(y +1)[x -1][0] == 255 &&    // POS: 0,2
+            oldImage.ptr<Vec3b>(y -1)[x][0] == 255    &&    // POS: 1,0
+            oldImage.ptr<Vec3b>(y +1)[x][0] == 255    &&    // POS: 1,2
+            oldImage.ptr<Vec3b>(y -1)[x +1][0] == 255 &&    // POS: 2,0
+            oldImage.ptr<Vec3b>(y)[x +1][0] == 255    &&    // POS: 2,1
+            oldImage.ptr<Vec3b>(y +1)[x +1][0] == 255;      // POS: 2,2
 }
 
-// bool deveErodir(int x, int y, Mat &oldImage) {
-//     Vec3b* ptr = oldImage.ptr<Vec3b>(y);
-//     return  ptr[x] -1, y -1))[0] == 255 && // POS: 0,0
-//             ptr[x] -1, y))[0] == 255 &&    // POS: 0,1
-//             ptr[x] -1, y +1))[0] == 255 && // POS: 0,2
-//             ptr[x], y -1))[0] == 255 &&    // POS: 1,0
-//             ptr[x], y +1))[0] == 255 &&    // POS: 1,2
-//             ptr[x] +1, y -1))[0] == 255 && // POS: 2,0
-//             ptr[x] +1, y))[0] == 255 &&    // POS: 2,1
-//             ptr[x] +1, y +1))[0] == 255;   // POS: 2,2
-// }
-
-Mat erodir(Mat image, int limiar) {
+Mat erodir(Mat& image, int limiar) {
     Mat newImage(image.rows, image.cols, CV_8UC3, Scalar(0,0,0));
     Mat oldImage = converterParaCinzaPonderado(image);
     threshold(oldImage, oldImage, limiar, 255, 0);
     int height = oldImage.rows - 1;
     int width = oldImage.cols -1;
+    Vec3b* pixelOldImage;
+    Vec3b* pixelNewImage;
     for(int y = 1; y < height; y++) {
-
-        Vec3b* pixel = oldImage.ptr<Vec3b>(y);
+        pixelOldImage = oldImage.ptr<Vec3b>(y);
+        pixelNewImage = newImage.ptr<Vec3b>(y);
         for(int x = 1; x < width; x++) {
-            // Vec<unsigned char, 3>& pixel = newImage.at<Vec3b>(Point(x, y));
-            pixel[x];
             if(deveErodir(x, y, oldImage)) {
-                pixel[x][0] = pixel[x][1] = pixel[x][2] = 255;
+                pixelNewImage[x][0] = pixelNewImage[x][1] = pixelNewImage[x][2] = 255;
             }
         } 
     }
@@ -115,7 +101,7 @@ Mat erodir(Mat image, int limiar) {
     return newImage;
 }
 
-int presentHistogram(Mat image) {
+int presentHistogram(Mat& image) {
     std::vector<int> histRed(256, 0);
     std::vector<int> histGreen(256, 0);
     std::vector<int> histBlue(256, 0);
@@ -163,7 +149,7 @@ int presentHistogram(Mat image) {
     return 0;
 }
 
-int showHistogram(Mat image) {
+int showHistogram(Mat& image) {
   std::vector<Mat> bgr_planes;
   split( image, bgr_planes );
 
@@ -208,30 +194,30 @@ int showHistogram(Mat image) {
   return 0;
 }
 
-Mat converterParaCorInvertida(Mat image) {
-    Mat newImage(image.size().height, image.size().width, CV_8UC3, Scalar(0,0,0));
-    int height = newImage.size().height;
-    int width = newImage.size().width;
+Mat converterParaCorInvertida(Mat& image) {
+    Mat newImage(image.rows, image.cols, CV_8UC3, Scalar(0,0,0));
+    int height = newImage.rows;
+    int width = newImage.cols;
     Vec3b* ptrPixelNew;
     Vec3b* ptrPixelOld;
     for(int y = 0; y < height; y++) {
         ptrPixelNew = newImage.ptr<Vec3b>(y);
         ptrPixelOld = image.ptr<Vec3b>(y);
         for(int x = 0; x < width; x++) {
-            ptrPixelNew[x][0] = 255 - ptrPixelOld[x][0]; // blue
-            ptrPixelNew[x][1] = 255 - ptrPixelOld[x][1]; // green
-            ptrPixelNew[x][2] = 255 - ptrPixelOld[x][2]; // red
+            ptrPixelNew[x][0] = 255 - ptrPixelOld[x][0];
+            ptrPixelNew[x][1] = 255 - ptrPixelOld[x][1];
+            ptrPixelNew[x][2] = 255 - ptrPixelOld[x][2];
         } 
     }
 
     return newImage;
 }
 
-Mat limiarizar(Mat image, int limiar) {
+Mat limiarizar(Mat& image, int limiar) {
     Mat grayImage = converterParaCinzaPonderado(image);
-    Mat newImage(image.size().height, image.size().width, CV_8UC3, Scalar(0,0,0));
-    int height = newImage.size().height;
-    int width = newImage.size().width;
+    Mat newImage(image.rows, image.cols, CV_8UC3, Scalar(0,0,0));
+    int height = newImage.rows;
+    int width = newImage.cols;
     Vec3b* ptrPixelNew;
     Vec3b* ptrPixelGray;
     for(int y = 0; y < height; y++) {
@@ -246,9 +232,9 @@ Mat limiarizar(Mat image, int limiar) {
 }
 
 Mat isolarCanalDeCor(std::string cor, Mat image) {
-    Mat newImage(image.size().height, image.size().width, CV_8UC3, Scalar(0,0,0));
-    int height = newImage.size().height;
-    int width = newImage.size().width;
+    Mat newImage(image.rows, image.cols, CV_8UC3, Scalar(0,0,0));
+    int height = newImage.rows;
+    int width = newImage.cols;
     Vec3b* ptrPixelNew;
     Vec3b* ptrPixelOld;
     for(int y = 0; y < height; y++) {
@@ -278,9 +264,9 @@ Mat isolarCanalDeCor(std::string cor, Mat image) {
 
 Mat incrementarCanaisDeDor(std::string cor, int tipo, int valor, Mat image) {
     // Tipo 1: Inteiro, 2: Percentual
-    Mat newImage(image.size().height, image.size().width, CV_8UC3, Scalar(0,0,0));
-    int height = newImage.size().height;
-    int width = newImage.size().width;
+    Mat newImage(image.rows, image.cols, CV_8UC3, Scalar(0,0,0));
+    int height = newImage.rows;
+    int width = newImage.cols;
     Vec3b* ptrPixelNew;
     Vec3b* ptrPixelOld;
     for(int y = 0; y < height; y++) {
@@ -316,9 +302,9 @@ Mat incrementarCanaisDeDor(std::string cor, int tipo, int valor, Mat image) {
 Mat zoomIn(int zoomValue, Mat image) {
     if (zoomValue <= 1) return image;
 
-    Mat newImage(image.size().height * zoomValue, image.size().width * zoomValue, CV_8UC3, Scalar(0,0,0));
-    int height = image.size().height;
-    int width = image.size().width;
+    Mat newImage(image.rows * zoomValue, image.cols * zoomValue, CV_8UC3, Scalar(0,0,0));
+    int height = image.rows;
+    int width = image.cols;
     Vec3b* ptrPixelOld;
     for(int y = 0; y < height; y++) {
         ptrPixelOld = image.ptr<Vec3b>(y);
@@ -336,11 +322,11 @@ Mat zoomIn(int zoomValue, Mat image) {
 Mat zoomOut(int zoomValue, Mat image) {
     if (zoomValue <= 1) return image;
     
-    double zoomOut = 1 / zoomValue;
-    Mat newImage(image.size().height * zoomValue, image.size().width * zoomValue, CV_8UC3, Scalar(0,0,0));
-    Mat resizedImage(image.size().height, image.size().width, CV_8UC3, Scalar(0,0,0));
-    int height = image.size().height;
-    int width = image.size().width;
+    double zoomOut = (double)1 / zoomValue;
+    Mat newImage(image.rows * zoomValue, image.cols * zoomValue, CV_8UC3, Scalar(0,0,0));
+    Mat resizedImage(image.rows, image.cols, CV_8UC3, Scalar(0,0,0));
+    int height = image.rows;
+    int width = image.cols;
     for(int y = 0; y < height; y++) {
         for(int x = 0; x < width; x++) {
             Vec<unsigned char, 3>& oldImagePixel = image.at<Vec3b>(Point(x, y));       
@@ -353,17 +339,17 @@ Mat zoomOut(int zoomValue, Mat image) {
         }
     }
     // TODO corrigir
-    cv::resize(image, resizedImage, cv::Size(), 0.75, 0.75);
+    cv::resize(image, resizedImage, cv::Size(), zoomOut, zoomOut);
     return resizedImage;
 }
 
 
 Mat somarImagem(Mat img1, Mat img2) {
-    int totalHeight = (img1.size().height < img2.size().height) ? img1.size().height : img2.size().height;
-    int totalWidth  = (img1.size().width < img2.size().width) ? img1.size().width : img2.size().width;
+    int totalHeight = (img1.rows < img2.rows) ? img1.rows : img2.rows;
+    int totalWidth  = (img1.cols < img2.cols) ? img1.cols : img2.cols;
     Mat newImg(totalHeight, totalWidth, CV_8UC3, Scalar(255, 255, 255));
-    int height = newImg.size().height;
-    int width = newImg.size().width;
+    int height = newImg.rows;
+    int width = newImg.cols;
     Vec3b* ptrPixelNew;
     Vec3b* ptrPixelImg1;
     Vec3b* ptrPixelImg2;
@@ -387,11 +373,11 @@ Mat somarImagem(Mat img1, Mat img2) {
 
 
 Mat somarImagemPonderada(Mat img1, Mat img2, int percentImg1, int percentImg2) {
-    int totalHeight = (img1.size().height < img2.size().height) ? img1.size().height : img2.size().height;
-    int totalWidth  = (img1.size().width < img2.size().width) ? img1.size().width : img2.size().width;
+    int totalHeight = (img1.rows < img2.rows) ? img1.rows : img2.rows;
+    int totalWidth  = (img1.cols < img2.cols) ? img1.cols : img2.cols;
     Mat newImg(totalHeight, totalWidth, CV_8UC3, Scalar(255, 255, 255));
-    int height = newImg.size().height;
-    int width = newImg.size().width;
+    int height = newImg.rows;
+    int width = newImg.cols;
     double porcentagem1 = (double) percentImg1 / 100;
     double porcentagem2 = (double) percentImg2 / 100;
     Vec3b* ptrPixelNew;
@@ -402,8 +388,8 @@ Mat somarImagemPonderada(Mat img1, Mat img2, int percentImg1, int percentImg2) {
         ptrPixelImg1 = img1.ptr<Vec3b>(y);
         ptrPixelImg2 = img2.ptr<Vec3b>(y);
         for(int x = 0; x < width; x++) {
-            if(x > img1.size().width || y > img1.size().height ||
-               x > img2.size().width || y > img2.size().height) 
+            if(x > img1.cols || y > img1.rows ||
+               x > img2.cols || y > img2.rows) 
             {
                 ptrPixelNew[x][0] = ptrPixelNew[x][1] = ptrPixelNew[x][2] = 255;
                 continue;
@@ -424,11 +410,11 @@ Mat somarImagemPonderada(Mat img1, Mat img2, int percentImg1, int percentImg2) {
 
 
 Mat subtrairImagem(Mat imgMinuendo, Mat imgSubtraendo) {
-    int totalHeight = (imgMinuendo.size().height < imgSubtraendo.size().height) ? imgMinuendo.size().height : imgSubtraendo.size().height;
-    int totalWidth  = (imgMinuendo.size().width < imgSubtraendo.size().width) ? imgMinuendo.size().width : imgSubtraendo.size().width;
+    int totalHeight = (imgMinuendo.rows < imgSubtraendo.rows) ? imgMinuendo.rows : imgSubtraendo.rows;
+    int totalWidth  = (imgMinuendo.cols < imgSubtraendo.cols) ? imgMinuendo.cols : imgSubtraendo.cols;
     Mat newImg(totalHeight, totalWidth, CV_8UC3, Scalar(0,0,0));
-    int height = newImg.size().height;
-    int width = newImg.size().width;
+    int height = newImg.rows;
+    int width = newImg.cols;
     Vec3b* ptrPixelNew;
     Vec3b* ptrPixelImgMinuendo;
     Vec3b* ptrPixelImgSubtraendo;
@@ -437,7 +423,7 @@ Mat subtrairImagem(Mat imgMinuendo, Mat imgSubtraendo) {
         ptrPixelImgMinuendo = imgMinuendo.ptr<Vec3b>(y);
         ptrPixelImgSubtraendo = imgSubtraendo.ptr<Vec3b>(y);
         for(int x = 0; x < width; x++) {
-            if(x > imgSubtraendo.size().width || y > imgSubtraendo.size().height) {
+            if(x > imgSubtraendo.cols || y > imgSubtraendo.rows) {
                 ptrPixelNew[x][0] = ptrPixelImgMinuendo[x][0];
                 ptrPixelNew[x][1] = ptrPixelImgMinuendo[x][1];
                 ptrPixelNew[x][2] = ptrPixelImgMinuendo[x][2];

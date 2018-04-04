@@ -85,18 +85,18 @@ int perguntarQualFiltro() {
 
 int perguntarValoresSomaPonderadaPrimeiraImagem() {
     int valor;
-    std::cout << "\nPor favor insira o valor(em porcentagem) da primeira imagem \nR: " << std::endl;
+    std::cout << "\nPor favor insira o valor(em porcentagem) da primeira imagem \nR: ";
     std::cin >> valor;
 
-    return (valor > 0) ? valor : 100;
+    return (valor >= 0) ? valor : 100;
 }
 
 int perguntarValoresSomaPonderadaSegundaImagem() {
     int valor;
-    std::cout << "\nPor favor insira o valor(em porcentagem) da segunda imagem \nR: " << std::endl;
+    std::cout << "\nPor favor insira o valor(em porcentagem) da segunda imagem \nR: ";
     std::cin >> valor;
 
-    return (valor > 0) ? valor : 100;
+    return (valor >= 0) ? valor : 100;
 }
 
 std::string perguntarQualCor() {

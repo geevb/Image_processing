@@ -24,7 +24,7 @@ void executarComImagem();
 cv::Mat verificarImagemEscolhida(std::string nomeImagem);
 void executarTipo(std::string tipo);
 void fluxo();
-cv::Mat aplicarFiltroNaImagem(int filtro, cv::Mat imagem, valores vals);
+cv::Mat aplicarFiltroNaImagem(int filtro, cv::Mat& imagem, valores vals);
 valores pegarValoresDoFiltro(int filtro);
 
 std::string verificarTipoExibicao() {
@@ -53,10 +53,14 @@ void executarComImagem() {
     cv::Mat image = verificarImagemEscolhida(imagem);
 
     int filtro = perguntarQualFiltro();
-    valores vals = pegarValoresDoFiltro(filtro);
 
-    Mat filteredImage = aplicarFiltroNaImagem(filtro, image, vals);
-    apresentarImagem(filteredImage);
+    apresentarImagem(
+        aplicarFiltroNaImagem(
+            filtro,
+            image,
+            pegarValoresDoFiltro(filtro)
+        )
+    );
 }
 
 cv::Mat verificarImagemEscolhida(std::string nomeImagem) {
@@ -145,7 +149,7 @@ valores pegarValoresDoFiltro(int filtro) {
     return vals;
 }
 
-cv::Mat aplicarFiltroNaImagem(int filtro, cv::Mat imagem, valores vals) {
+cv::Mat aplicarFiltroNaImagem(int filtro, cv::Mat& imagem, valores vals) {
     cv::Mat filteredImage;
     switch(filtro) {
         case 1:{
