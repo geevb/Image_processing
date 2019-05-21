@@ -110,9 +110,8 @@ int presentHistogram(Mat& image) {
     int HistR[257] = {0};
     int HistG[257] = {0};
     int HistB[257] = {0};
-    for (int i = 0; i < image.rows; i++)
-        for (int j = 0; j < image.cols; j++)
-        {
+    for (int i = 0; i < image.rows; i++) 
+        for (int j = 0; j < image.cols; j++) {
             Vec3b intensity = image.at<Vec3b>(Point(j, i));
             int Red = intensity.val[0];
             int Green = intensity.val[1];
@@ -121,15 +120,17 @@ int presentHistogram(Mat& image) {
             HistB[Blue] += 1;
             HistG[Green] += 1;
         }
+    
     Mat HistPlotR (500, 256, CV_8UC3, Scalar(0, 0, 0));
     Mat HistPlotG (500, 256, CV_8UC3, Scalar(0, 0, 0));
     Mat HistPlotB (500, 256, CV_8UC3, Scalar(0, 0, 0));
-    for (int i = 0; i < 256; i=i+2)
-    {
+    
+    for (int i = 0; i < 256; i += 2) {
         line(HistPlotR, Point(i, 500), Point(i, 500-HistR[i]), Scalar(0, 0, 255),1,8,0);
         line(HistPlotG, Point(i, 500), Point(i, 500-HistG[i]), Scalar(0, 255, 0),1,8,0);
         line(HistPlotB, Point(i, 500), Point(i, 500-HistB[i]), Scalar(255, 0, 0),1,8,0);
     }
+    
     namedWindow("Red Histogram", cv::WINDOW_AUTOSIZE );
     namedWindow("Green Histogram", cv::WINDOW_AUTOSIZE );
     namedWindow("Blue Histogram", cv::WINDOW_AUTOSIZE );
@@ -165,17 +166,16 @@ int showHistogram(Mat& image) {
   normalize(g_hist, g_hist, 0, histImage.rows, NORM_MINMAX, -1, Mat() );
   normalize(r_hist, r_hist, 0, histImage.rows, NORM_MINMAX, -1, Mat() );
 
-  for( int i = 1; i < histSize; i++ )
-  {
-      line( histImage, Point( bin_w*(i-1), hist_h - cvRound(b_hist.at<float>(i-1)) ) ,
-                       Point( bin_w*(i), hist_h - cvRound(b_hist.at<float>(i)) ),
-                       Scalar( 255, 0, 0), 2, 8, 0  );
-      line( histImage, Point( bin_w*(i-1), hist_h - cvRound(g_hist.at<float>(i-1)) ) ,
-                       Point( bin_w*(i), hist_h - cvRound(g_hist.at<float>(i)) ),
-                       Scalar( 0, 255, 0), 2, 8, 0  );
-      line( histImage, Point( bin_w*(i-1), hist_h - cvRound(r_hist.at<float>(i-1)) ) ,
-                       Point( bin_w*(i), hist_h - cvRound(r_hist.at<float>(i)) ),
-                       Scalar( 0, 0, 255), 2, 8, 0  );
+  for( int i = 1; i < histSize; i++ ) {
+      line(histImage, Point(bin_w*(i-1), hist_h - cvRound(b_hist.at<float>(i-1))) ,
+                      Point(bin_w*(i), hist_h - cvRound(b_hist.at<float>(i))),
+                      Scalar(255, 0, 0), 2, 8, 0);
+      line(histImage, Point(bin_w*(i-1), hist_h - cvRound(g_hist.at<float>(i-1))) ,
+                      Point(bin_w*(i), hist_h - cvRound(g_hist.at<float>(i))),
+                      Scalar(0, 255, 0), 2, 8, 0);
+      line(histImage, Point(bin_w*(i-1), hist_h - cvRound(r_hist.at<float>(i-1))) ,
+                      Point(bin_w*(i), hist_h - cvRound(r_hist.at<float>(i))),
+                      Scalar(0, 0, 255), 2, 8, 0);
   }
 
   namedWindow("Histogram", CV_WINDOW_AUTOSIZE );
@@ -263,21 +263,21 @@ Mat incrementarCanaisDeDor(std::string cor, int tipo, int valor, Mat image) {
         ptrPixelOld = image.ptr<Vec3b>(y);
         for(int x = 0; x < width; x++) {
             if(cor == "B") {
-                double novoValor = (tipo == 1) ? ptrPixelOld[x][0] + valor : ( ptrPixelOld[x][0] + (ptrPixelOld[x][0] * (valor / 100)));
+                double novoValor = (tipo == 1) ? ptrPixelOld[x][0] + valor : (ptrPixelOld[x][0] + (ptrPixelOld[x][0] * (valor / 100)));
                 ptrPixelNew[x][0] = (novoValor <= 255) ? novoValor : 255;
                 ptrPixelNew[x][1] = ptrPixelOld[x][1];
                 ptrPixelNew[x][2] = ptrPixelOld[x][2];
             }
             
             if(cor == "G") {
-                double novoValor = (tipo == 1) ? ptrPixelOld[x][1] + valor : ( ptrPixelOld[x][1] + (ptrPixelOld[x][1] * (valor / 100)));
+                double novoValor = (tipo == 1) ? ptrPixelOld[x][1] + valor : (ptrPixelOld[x][1] + (ptrPixelOld[x][1] * (valor / 100)));
                 ptrPixelNew[x][0] = ptrPixelOld[x][0]; 
                 ptrPixelNew[x][1] = (novoValor <= 255) ? novoValor : 255;
                 ptrPixelNew[x][2] = ptrPixelOld[x][2];
             }
 
             if(cor == "R") {
-                double novoValor = (tipo == 1) ? ptrPixelOld[x][2] + valor : ( ptrPixelOld[x][2] + (ptrPixelOld[x][2] * (valor / 100)));
+                double novoValor = (tipo == 1) ? ptrPixelOld[x][2] + valor : (ptrPixelOld[x][2] + (ptrPixelOld[x][2] * (valor / 100)));
                 ptrPixelNew[x][0] = ptrPixelOld[x][0];
                 ptrPixelNew[x][1] = ptrPixelOld[x][1];
                 ptrPixelNew[x][2] = (novoValor > 255) ? 255 : novoValor;
@@ -327,7 +327,8 @@ Mat zoomOut(int zoomValue, Mat image) {
             newImage.at<Vec3b>(Point(x * zoomValue +1, y * zoomValue +1)) = oldImagePixel;
         }
     }
-    // TODO corrigir
+    
+    // TODO make this right, not using opencv function
     cv::resize(image, resizedImage, cv::Size(), zoomOut, zoomOut);
     return resizedImage;
 }
@@ -377,8 +378,10 @@ Mat somarImagemPonderada(Mat img1, Mat img2, int percentImg1, int percentImg2) {
         ptrPixelImg1 = img1.ptr<Vec3b>(y);
         ptrPixelImg2 = img2.ptr<Vec3b>(y);
         for(int x = 0; x < width; x++) {
-            if(x > img1.cols || y > img1.rows ||
-               x > img2.cols || y > img2.rows) 
+            if(x > img1.cols || 
+               y > img1.rows ||
+               x > img2.cols || 
+               y > img2.rows) 
             {
                 ptrPixelNew[x][0] = ptrPixelNew[x][1] = ptrPixelNew[x][2] = 255;
                 continue;
